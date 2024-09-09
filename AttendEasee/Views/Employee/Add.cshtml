@@ -9,11 +9,19 @@
 <main class="form-signin w-100 m-auto">
     <form method="post">
         <h3 class="text-center mt-1">Add Employee Details</h3>
+
+            @if (TempData["EmailExistsWarning"] != null)
+            {
+                <div class="alert alert-danger" role="alert">
+                    The email you entered already exists. Please use a different email.
+                </div>
+            }
+
         <div class="form-floating mb-1 mt-1">
             <input type="text" name="Name" class="form-control" id="code" placeholder="Enter Name">
             <label for="name">Name</label>
         </div>
-        <div class="form-floating mb-3">
+        <div class="form-floating mb-1">
             <input type="text" name="UserName" class="form-control" id="name" placeholder="Enter Username">
             <label for="username">Username</label>
         </div>
@@ -58,6 +66,23 @@
         </div>
     </form>
 </main>
+    <!-- Email Already Exists Modal -->
+  @*   <div class="modal fade" id="emailExistsModal" tabindex="-1" aria-labelledby="emailExistsModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="emailExistsModalLabel">Warning</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    The email you entered already exists. Please use a different email.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div> *@
 
 </div>
 

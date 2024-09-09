@@ -17,8 +17,8 @@ namespace AttendEase.Controllers
         {
             var list = _dbContext.Users.Where(user => user.IsAdmin != true).ToList();
             if (list != null)
-            { 
-            return View(list);
+            {
+                return View(list);
             }
             return View();
         }
@@ -27,11 +27,11 @@ namespace AttendEase.Controllers
         public IActionResult Add()
         {
             var designations = _dbContext.Designations
-            .Select(d => d.DesignationId + "-" + d.Roles)  // Assuming 'Title' represents the role name
+            .Select(d => d.DesignationId + "-" + d.Roles)
             .ToList();
 
             var projectId = _dbContext.Projects
-            .Select(p => p.ProjectId)  // Assuming 'ProjectId' is the property for project IDs
+            .Select(p => p.ProjectId)
             .ToList();
 
 
@@ -42,12 +42,22 @@ namespace AttendEase.Controllers
         }
 
         [HttpPost]
-        public IActionResult Add([FromForm] User user)
+        public IActionResult Add([FromForm] User user, string ProjectCode)
         {
             user.Password = "@123";
             if (_dbContext.Users.Any(u => u.Email == user.Email))
             {
-                return BadRequest("email already exists");
+                TempData["EmailExistsWarning"] = true;
+                return RedirectToAction("Add");
+            }
+
+            if (ProjectCode != "N/A")
+            {
+                var project = _dbContext.Projects.FirstOrDefault(p => p.ProjectCode == ProjectCode);
+                if (project != null)
+                {
+                    user.ProjectId = project.ProjectId;
+                }
             }
 
             _dbContext.Users.Add(user);
@@ -65,7 +75,7 @@ namespace AttendEase.Controllers
             return View(projectIds);
         }
 
-        
+
 
         [HttpPut]
         public IActionResult Delete([FromForm] User user)
@@ -73,27 +83,41 @@ namespace AttendEase.Controllers
             var fetched = _dbContext.Users.SingleOrDefault(p => p.UserName == user.UserName);
             if (fetched != null)
             {
-                bool isUpdated = false;
-                if (user.UserName != null)
-                {
-                    _dbContext.Users.Remove(fetched);
-                    isUpdated = true;
-                }
-
-                if (isUpdated)
-                {
-                    _dbContext.SaveChanges();
-                    return Json(new { success = true });
-                }
-                else
-                {
-                    return View("Modify");
-                }
+                // User exists
+                _dbContext.Users.Remove(fetched);
+                _dbContext.SaveChanges();
+                return Json(new { success = true });
             }
             else
             {
-                return View("Modify");
+                // User does not exist
+                return Json(new { success = false, message = "User does not exist" });
             }
         }
+
+        //[HttpPost]
+        //public IActionResult AssignProject(string projectCode, int userId, string role)
+        //{
+        //    // Fetch the project by ProjectId
+        //    var project = _dbContext.Projects.SingleOrDefault(p => p.ProjectCode == projectCode);
+        //    if (project == null)
+        //    {
+        //        return NotFound("Project not found");
+        //    }
+
+        //    // Fetch the user by UserId (either Manager or Employee)
+        //    var user = _dbContext.Users.SingleOrDefault(u => u.UserId == userId);
+        //    if (user == null)
+        //    {
+        //        return NotFound("User not found");
+        //    }
+
+        //    user.ProjectId = project.ProjectId;
+
+
+        //    _dbContext.SaveChanges();
+
+        //    return Ok("User assigned to project successfully");
+        //}
     }
 }
