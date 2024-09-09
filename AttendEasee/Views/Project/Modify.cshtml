@@ -1,0 +1,90 @@
+﻿@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+@model List<string>
+<div>
+<main class="form-signin w-100 m-auto">
+    <form id="projectForm">
+        <h3 class="text-center mt-4">Modify Project Details</h3>
+            <div class="form-floating mb-3 mt-5">
+                <select name="ProjectCode" class="form-control" id="code">
+                    @foreach (var projectCode in Model)
+                    {
+                        <option value="@projectCode">@projectCode</option>
+                    }
+                </select>
+                <label for="code">Project Code</label>
+            </div>
+        <div class="form-floating mb-3">
+            <input type="text" name="Name" class="form-control" id="name" placeholder="Enter Project Name">
+            <label for="name">Name</label>
+        </div>
+        <div class="form-floating mb-3">
+            <input type="text" name="Location" class="form-control" id="location" placeholder="Enter Project Location">
+            <label for="location">Location</label>
+        </div>
+
+        <div class="row">
+            <div class="col-6">
+                <button type="button" class="btn btn-primary w-100 py-2" style="background-color: rgba(17,171,221,1);" onclick="submitForm('Update')">Update</button>
+            </div>
+            <div class="col-6">
+                <button type="button" class="btn btn-primary w-100 py-2" style="background-color: rgba(17,171,221,1);" onclick="submitForm('Delete')">Delete</button>
+            </div>
+        </div>
+    </form>
+</main>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function submitForm(action) {
+            const form = document.getElementById('projectForm');
+            const formData = new FormData(form);
+
+            fetch(`/Project/${action}`, {
+                method: getMethod(action),
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            }).then(response => {
+                if (response.ok) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Data ' + action + ' successful',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        window.location.reload(); 
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Request failed',
+                        icon: 'error',
+                        confirmButtonText: 'Try Again'
+                    });
+                }
+            }).catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'An error occurred: ' + error.message,
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            });
+        }
+
+        function getMethod(action) {
+            switch (action) {
+                case 'Update':
+                    return 'PUT';
+                case 'Delete':
+                    return 'PUT';
+                default:
+                    return 'PUT';
+            }
+        }
+    </script>
+</div>

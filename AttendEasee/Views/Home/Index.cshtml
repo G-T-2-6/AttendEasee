@@ -1,8 +1,23 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿﻿<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-4">
+            <!-- Adjust the col-md-* value as needed -->
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+            <main class="form-signin w-100 m-auto">
+                <form method="post" asp-controller="Home" asp-action="Index">
+                    <h3 class="text-center mt-4">Login to AttendEase</h3>
+                    <div class="form-floating mb-3 mt-5">
+                        <input type="email" name="Email" class="form-control" id="floatingInput" placeholder="name@example.com">
+                        <label for="floatingInput">Email address</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="password" name="Password" class="form-control" id="floatingPassword" placeholder="Password">
+                        <label for="floatingPassword">Password</label>
+                    </div>
+
+                    <button  style="background-color: rgba(17,171,221,1);" class="btn btn-primary w-100 py-2" type="submit">Login</button>
+                </form>
+            </main>
+        </div>
+    </div>
 </div>

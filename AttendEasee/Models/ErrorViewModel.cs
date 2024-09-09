@@ -1,4 +1,4 @@
-namespace AttendEasee.Models
+namespace AttendEase.Models
 {
     public class ErrorViewModel
     {

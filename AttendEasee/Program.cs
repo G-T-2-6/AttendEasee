@@ -1,4 +1,8 @@
-namespace AttendEasee
+using AttendEase.Data;
+using Microsoft.EntityFrameworkCore;
+using System;
+
+namespace AttendEase
 {
     public class Program
     {
@@ -8,6 +12,9 @@ namespace AttendEasee
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+
+            builder.Services.AddDbContext<ApplicationDBContext>(options =>
+            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             var app = builder.Build();
 

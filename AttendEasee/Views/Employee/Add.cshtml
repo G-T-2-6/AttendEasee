@@ -1,0 +1,64 @@
+﻿@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+@model List<string>
+
+<div>
+
+<main class="form-signin w-100 m-auto">
+    <form method="post">
+        <h3 class="text-center mt-1">Add Employee Details</h3>
+        <div class="form-floating mb-1 mt-1">
+            <input type="text" name="Name" class="form-control" id="code" placeholder="Enter Name">
+            <label for="name">Name</label>
+        </div>
+        <div class="form-floating mb-3">
+            <input type="text" name="UserName" class="form-control" id="name" placeholder="Enter Username">
+            <label for="username">Username</label>
+        </div>
+            <div class="form-floating mb-1">
+                <input type="email" name="Email" class="form-control" id="name" placeholder="Enter Email">
+                <label for="name">Email</label>
+            </div>
+            <div class="form-floating mb-1">
+                <select name="IsManager" class="form-control" id="isManager">
+                    <option value="false">No</option>
+                    <option value="true">Yes</option>
+                </select>
+                <label for="isManager">Is Manager</label>
+            </div>
+
+            <div class="form-floating mb-2">
+                <select name="DesignationId" class="form-control" id="designationDropdown">
+                    @foreach (var designation in Model)
+                    {
+                        var designationParts = designation.Split('-');
+                        var designationId = designationParts[0];
+                        <option value="@designationId">@designationParts[1] </option>
+                    }
+                </select>
+                <label for="designationDropdown">Select Designation</label>
+            </div>
+
+            <div class="form-floating mb-2">
+                <select name="ProjectId" class="form-control" id="projectDropdown">
+                    @foreach (var projectId in ViewBag.ProjectIds)
+                    {
+                        <option value="@projectId">@projectId</option>
+                    }
+                </select>
+                <label for="projectDropdown">Select Project</label>
+            </div>
+
+        <div class="row d-flex justify-content-center">
+            <div class="col-4">
+                <button type="submit" class="btn btn-primary w-100 py-2" style="background-color: rgba(17,171,221,1);" asp-controller="Employee" asp-action="Add">Add</button>
+            </div>
+        </div>
+    </form>
+</main>
+
+</div>
+
+
