@@ -13,6 +13,13 @@ namespace AttendEase
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
+            builder.Services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(30); // Session timeout duration
+                options.Cookie.HttpOnly = true; // Makes the session cookie accessible only on the server
+                options.Cookie.IsEssential = true; // Ensures session works even if GDPR compliance is applied
+            });
+
             builder.Services.AddDbContext<ApplicationDBContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -30,6 +37,8 @@ namespace AttendEase
             app.UseStaticFiles();
 
             app.UseRouting();
+
+            app.UseSession();
 
             app.UseAuthorization();
 

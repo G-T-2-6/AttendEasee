@@ -69,7 +69,7 @@ namespace AttendEase.Controllers
         {
             var attendanceRecords = _dbcontext.Attendances.Include(x => x.User).Where(x => x.AttendanceStatus == "Pending").ToList();
             return View(attendanceRecords);
-        }
+        }   
 
 
         [HttpPost]

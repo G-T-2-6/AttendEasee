@@ -61,7 +61,7 @@ namespace AttendEase.Controllers
         public IActionResult Add(Leave leave)
         {
             leave.LeaveStatus = "Pending";
-            leave.UserId = 2;
+            leave.UserId = 14;
 
             Console.WriteLine(leave.LeaveStatus);
             Console.WriteLine(leave.UserId);
