@@ -18,7 +18,7 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom box-shadow mb-3" style="background-color: rgba(17,171,221,1);">
             <div class="container-fluid">
-                <a class="navbar-brand text-dark fs-4" asp-area="" asp-controller="Project" asp-action="Index">AttendEase</a>
+                <a class="navbar-brand text-dark fs-4" asp-area="" asp-controller="Admin" asp-action="Index">AttendEase</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -30,9 +30,9 @@
                                 Projects
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item" asp-area="" asp-controller="Project" asp-action="Index">View Projects</a></li>
-                                <li><a class="dropdown-item" asp-area="" asp-controller="Project" asp-action="Add">Add Projects</a></li>
-                                <li><a class="dropdown-item" asp-area="" asp-controller="Project" asp-action="Modify">Modify Projects</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Admin" asp-action="ViewProject">View Projects</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Admin" asp-action="AddProject">Add Projects</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Admin" asp-action="ModifyProject">Modify Projects</a></li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -40,10 +40,10 @@
                                 Employee
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item" asp-area="" asp-controller="Employee" asp-action="Index">View Employee</a></li>
-                                <li><a class="dropdown-item" asp-area="" asp-controller="Employee" asp-action="Add">Add Employee</a></li>
-                                <li><a class="dropdown-item" asp-area="" asp-controller="Employee" asp-action="Modify">Modify Employee</a></li>
-                                <li><a class="dropdown-item" asp-area="" asp-controller="Employee" asp-action="AssignProject">Assign Project</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Admin" asp-action="ViewEmployee">View Employee</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Admin" asp-action="AddEmployee">Add Employee</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Admin" asp-action="ModifyEmployee">Modify Employee</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Admin" asp-action="AssignProject">Assign Project</a></li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -51,9 +51,16 @@
                                 Leaves
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item" asp-area="" asp-controller="Leave" asp-action="Index">Manage Leaves</a></li>
-                                <li><a class="dropdown-item" asp-area="" asp-controller="Leave" asp-action="Add">Add Leaves</a></li>
-                                
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Admin" asp-action="ManageLeave">Manage Leaves</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle active text-dark fs-8" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Attendance
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Admin" asp-action="ManageAttendance">Manage Attendance</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Admin" asp-action="AttendanceStatus">Attendance Status</a></li>
                             </ul>
                         </li>
                         <li class="ms-auto">

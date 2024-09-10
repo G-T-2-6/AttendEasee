@@ -1,0 +1,35 @@
+﻿@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+
+
+<div>
+
+    <main class="form-signin w-100 m-auto">
+        <form method="post">
+            <h3 class="text-center mt-4">Add Project Details</h3>
+            <div class="form-floating mb-3 mt-5">
+                <input type="text" name="ProjectCode" class="form-control" id="code" placeholder="Enter Project Name">
+                <label for="code">Project Code</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input type="text" name="Name" class="form-control" id="name" placeholder="Enter Project Name">
+                <label for="name">Project Name</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input type="text" name="Location" class="form-control" id="location" placeholder="Enter Project Location">
+                <label for="location">Location</label>
+            </div>
+
+            <div class="row d-flex justify-content-center">
+                <div class="col-4">
+                    <button type="submit" class="btn btn-primary w-100 py-2" style="background-color: rgba(17,171,221,1);" asp-controller="Project" asp-action="Add">Add</button>
+                </div>
+            </div>
+        </form>
+    </main>
+
+</div>
+
+

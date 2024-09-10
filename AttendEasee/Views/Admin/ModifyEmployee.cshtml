@@ -66,7 +66,7 @@
             const form = document.getElementById('projectForm');
             const formData = new FormData(form);
 
-            fetch(`/Employee/${action}`, {
+            fetch(`/Admin/${action}Employee`, {
                 method: 'PUT',
                 body: formData,
                 headers: {

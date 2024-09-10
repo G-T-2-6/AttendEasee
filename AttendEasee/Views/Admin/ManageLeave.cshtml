@@ -5,7 +5,7 @@
 
 @model List<Leave>
 
-<h2>Leaves</h2>
+<h2 class="d-flex justify-content-center"> Manage Leaves</h2>
 
 <button class="btn btn-success" onclick="accRejLeave('Accepted')">Accept all Leaves</button>
 <button class="btn btn-danger" onclick="accRejLeave('Rejected')">Reject all Leaves</button>
@@ -13,8 +13,6 @@
 <table class="table">
     <thead>
         <tr>
-            <th>Sr No.</th>
-            <th>Leave ID</th>
             <th>User</th>
             <th>Status</th>
             <th>Request Date</th>
@@ -25,34 +23,36 @@
         @foreach (var leave in Model)
         {
             <tr>
-                <td></td>
-                <td>@leave.LeaveId</td>
                 <td>@leave.User.UserName</td> <!-- Adjust this based on your User model's properties -->
                 <td>@leave.LeaveStatus</td>
                 <td>@leave.RequestDate.ToString("yyyy-MM-dd HH:mm:ss")</td> <!-- Format date as needed -->
                 <td>
-                    <button class="btn btn-success" onclick="updateLeave(@leave.LeaveId, 'Accepted')">Accept</button>
-                    <button class="btn btn-danger" onclick="updateLeave(@leave.LeaveId, 'Rejected')">Reject</button>
-                    @* <button class="btn btn-danger" onclick="deleteLeave(@leave.LeaveId)">Delete</button> *@
+                    @if (leave.LeaveStatus == "Pending")
+                    {
+                        <button class="btn btn-success" onclick="updateLeave(@leave.LeaveId, 'Accepted')">Accept</button>
+                        <button class="btn btn-danger" onclick="updateLeave(@leave.LeaveId, 'Rejected')">Reject</button>
+                    }
+
+                    
                 </td>
             </tr>
         }
     </tbody>
 </table>
-@section scripts{
+@section scripts {
     <script>
-        function accRejLeave(status){
+        function accRejLeave(status) {
             const formData = {
                 LeaveStatus: status,
             }
 
             console.log(formData);
 
-            fetch(`/leave/AccRejLeave`, {
+            fetch(`/Admin/AcceptRejectLeave`, {
                 method: "POST",
                 body: JSON.stringify(formData),
                 headers: {
-                    'Content-Type': 'application/json',                    
+                    'Content-Type': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest'
                 }
             }).then(response => {
@@ -63,7 +63,7 @@
                         icon: 'success',
                         confirmButtonText: 'OK'
                     }).then(() => {
-                        window.location.reload(); 
+                        window.location.reload();
                     });
                 } else {
                     Swal.fire({
@@ -93,7 +93,7 @@
 
             console.log(formData);
 
-            fetch(`UpdateLeave/${leaveId}`, {
+            fetch(`/Admin/UpdateLeave/${leaveId}`, {
                 method: "POST",
                 body: JSON.stringify(formData),
                 headers: {

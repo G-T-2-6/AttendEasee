@@ -44,7 +44,7 @@ namespace AttendEase.Controllers
                 else if(fetched.IsAdmin==true)
                 {
                     TempData["LoginSuccess"] = true;
-                    return RedirectToAction("Index", "User");
+                    return RedirectToAction("Index", "Admin");
                 }
                 else
                 {

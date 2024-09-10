@@ -1,5 +1,5 @@
 ﻿@{
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
 @model IEnumerable<AttendEase.Models.Attendance>
@@ -26,9 +26,9 @@
                     @if (item.AttendanceStatus == "Pending")
                     {
 
-                            <input type="hidden" id="userId" name="userId" value="@item.UserId" />
-                            <button type="button" name="isApproved" onclick="AccRejAttendance('Approved')" value="true" class="btn btn-success">Approve</button>
-                            <button type="button" name="isApproved" onclick="AccRejAttendance('Rejected')" value="false" class="btn btn-danger">Reject</button>
+                        <input type="hidden" id="userId" name="userId" value="@item.UserId" />
+                        <button type="button" name="isApproved" onclick="AccRejAttendance('Approved')" value="true" class="btn btn-success">Approve</button>
+                        <button type="button" name="isApproved" onclick="AccRejAttendance('Rejected')" value="false" class="btn btn-danger">Reject</button>
                     }
                     else
                     {

@@ -1,0 +1,27 @@
+﻿@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+
+
+<div>
+
+    <main class="form-signin w-100 m-auto">
+        <form method="post">
+            <h3 class="text-center mt-4">Add Leave Details</h3>
+            <div class="form-floating mb-3 mt-4">
+                <input type="Date" name="RequestDate" class="form-control" id="RequestDate" placeholder="select date">
+                <label for="RequestDate">Leave Date</label>
+            </div>
+            <input type="hidden" name="UserId" class="form-control" id="RequestDate" placeholder="Enter Id">
+            <div class="row d-flex justify-content-center">
+                <div class="col-4">
+                    <button type="submit" class="btn btn-primary w-100 py-2" style="background-color: rgba(17,171,221,1);" asp-controller="Admin" asp-action="AddLeave">Add</button>
+                </div>
+            </div>
+        </form>
+    </main>
+
+</div>
+
+
