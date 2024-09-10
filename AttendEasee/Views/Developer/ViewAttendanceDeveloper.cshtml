@@ -1,0 +1,46 @@
+﻿@model List<AttendEase.Models.Attendance>
+
+@{
+    Layout = "~/Views/Shared/_DeveloperLayout.cshtml";
+}
+
+
+@*
+<form asp-controller="Manager" asp-action="ViewEmployeeAttendance" method="get" class="form-inline">
+    <div class="form-group">
+        <label for="userId">User ID: </label>
+        <input type="number" name="userId" id="userId" class="form-control mx-2" required />
+        <button type="submit" class="btn btn-primary">Search</button>
+    </div>
+</form>*@
+
+
+@if (Model != null && Model.Count > 0)
+{
+
+    <h3 class="d-flex justify-content-center">Attendance for @Model.FirstOrDefault()?.User.Name</h3>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Action Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Date.ToShortDateString()</td>
+                    <td>@item.AttendanceStatus</td>
+                    <td>@item.AccRejDate?.ToShortDateString()</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No attendance records found for the specified user.</p>
+}

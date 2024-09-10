@@ -31,12 +31,10 @@ namespace AttendEase.Controllers
 
         [HttpGet]
         public IActionResult Project()
-        { 
-            object userid = TempData["Details"];
-            int id = (int)userid;
-            manager = (User)_db.Users.FirstOrDefault(u => u.UserId == id);
+        {
+            var userid = HttpContext.Session.GetInt32("UserId");
+            manager = (User)_db.Users.FirstOrDefault(u => u.UserId == userid);
             project = (Project)_db.Projects.FirstOrDefault(p => p.ProjectId == manager.ProjectId);
-            TempData["Details"] = id;
             return View(project);
         }
 
@@ -45,15 +43,15 @@ namespace AttendEase.Controllers
             return View();
         }
 
-        [HttpPost]
-        public IActionResult Leave(Leave leave)
-        {
-            leave.LeaveStatus = "Pending";
-            leave.UserId = 14;
-            _db.Leaves.Add(leave);
-            _db.SaveChanges();
-            return RedirectToAction("Index", "Manager"); 
-        }
+        //[HttpPost]
+        //public IActionResult Leave(Leave leave)
+        //{
+        //    leave.LeaveStatus = "Pending";
+        //    leave.UserId = (int)HttpContext.Session.GetInt32("UserId");
+        //    _db.Leaves.Add(leave);
+        //    _db.SaveChanges();
+        //    return RedirectToAction("Index", "Manager"); 
+        //}
 
         [HttpGet]
         public IActionResult ApplyAttendance()
@@ -86,7 +84,7 @@ namespace AttendEase.Controllers
 
         public IActionResult Employee() 
         {
-            object userid = TempData["Details"];
+            var userid = HttpContext.Session.GetInt32("UserId");
             int id = (int)userid;
             manager = (User)_db.Users.FirstOrDefault(u => u.UserId == id);
             var managerWithSubordinates = _db.Users.Where(u => u.ManagerId == manager.UserId).ToList();
@@ -95,7 +93,6 @@ namespace AttendEase.Controllers
                 return RedirectToAction("Errror", "Home");
             }
 
-            TempData["Details"] = id;
             return View(managerWithSubordinates); 
         }
 
@@ -107,7 +104,7 @@ namespace AttendEase.Controllers
         [HttpPost]
         public IActionResult ApplyLeaveManager(Leave obj)
         {
-            object userid = TempData["Details"];
+            var userid = HttpContext.Session.GetInt32("UserId");
             int id = (int)userid;
             manager = (User)_db.Users.FirstOrDefault(u => u.UserId == id);
 
@@ -143,14 +140,13 @@ namespace AttendEase.Controllers
                 _db.Leaves.Add(leave);
             }
             _db.SaveChanges();
-            TempData["Details"] = id;
             TempData["SuccessMessage"] = "Leave Added Successfully";
             return RedirectToAction("ViewLeaveManager");
         }
 
         public IActionResult ApproveLeaveManager()
         {
-            object userid = TempData["Details"];
+            var userid = HttpContext.Session.GetInt32("UserId");
             int id = (int)userid;
             manager = (User)_db.Users.FirstOrDefault(u => u.UserId == id);
             int managerId = manager.UserId;
@@ -160,20 +156,18 @@ namespace AttendEase.Controllers
                                           where user.ManagerId == managerId && leave.LeaveStatus=="Pending"
                                           select leave).ToList();
 
-            TempData["Details"] = id;
             return View(employeeLeaves);
         }
 
         public IActionResult ViewLeaveManager()
         {
-            object userid = TempData["Details"];
+            var userid = HttpContext.Session.GetInt32("UserId");
             int id = (int)userid;
             manager = (User)_db.Users.FirstOrDefault(u => u.UserId == id);
             var managerId = manager.UserId;
 
             List<Leave> employeeLeaves = _db.Leaves.Where(l => l.UserId == manager.UserId).ToList();
 
-            TempData["Details"] = id;
 
             return View(employeeLeaves);
         }

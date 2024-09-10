@@ -1,0 +1,84 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ViewDataS1d123</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/ECommerceStore.styles.css" asp-append-version="true" />
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        .navbar {
+            font-family: 'Lato', sans-serif;
+        }
+    </style>
+    <!-- Toastr CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+
+    <!-- Toastr JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+    <script>
+        toastr.options = {
+            "closeButton": true,
+            "progressBar": true,
+            "positionClass": "toast-top-right", // Positioning
+            "timeOut": "5000", // Duration (in ms)
+            "extendedTimeOut": "1000"
+        };
+    </script>
+
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom box-shadow mb-3" style="background-color: rgba(17,171,221,1);">
+            <div class="container-fluid">
+                <a class="navbar-brand text-dark fs-4" asp-area="" asp-controller="Developer" asp-action="Index">AttendEase</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item dropdown ml-1">
+                            <a class="nav-link dropdown-toggle active text-dark fs-8" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Leave
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Developer" asp-action="ApplyLeaveDeveloper">Leave Application</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Developer" asp-action="ViewLeaveDeveloper">Your Leaves</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown ml-1">
+                            <a class="nav-link dropdown-toggle active text-dark fs-8" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Attendance
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Developer" asp-action="ApplyAttendance">Attendance Application</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Developer" asp-action="ViewAttendanceDeveloper">Your Attendances</a></li>
+                            </ul>
+                        </li>
+                        <li class="ms-auto">
+                            <a asp-controller="Home" asp-action="Logout" style="background-color: rgba(17,171,221,1);border:1px solid black;" class="btn btn-primary text-dark my-2 my-sm-0">
+                                Logout
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

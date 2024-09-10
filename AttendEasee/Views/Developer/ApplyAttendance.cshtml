@@ -1,0 +1,71 @@
+﻿
+@{
+    ViewData["Title"] = "AddAttendanceDeveloper";
+    Layout = "~/Views/Shared/_DeveloperLayout.cshtml";
+}
+<div>
+<main class="form-signin w-100 m-auto">
+    <form id="applyAttendanceForm">
+        <h3 class="text-center mt-4 mb-4">Apply Attendance</h3>
+        <div class="form-floating mb-3">
+            <input type="date" id="attendanceDate" name="attendanceDate" class="form-control" placeholder="Select Attendance Date" required />
+            <label for="attendanceDate">Attendance Date</label>
+        </div>
+
+        <div class="row d-flex justify-content-center">
+            <div class="col-4">
+                <button type="button" onclick="applyAttendance()" class="btn btn-primary w-100 py-2" style="background-color: rgba(17,171,221,1);">Apply</button>
+            </div>
+        </div>
+    </form>
+</main>
+
+
+
+    <script>
+        function applyAttendance() {
+            var formData = {
+                UserId: @Context.Session.GetInt32("UserId"),
+                Date: $("#attendanceDate").val()
+            };
+
+            fetch(`/Developer/ApplyAttendance`, {
+                method: "POST",
+                body: JSON.stringify(formData),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            }).then(response => {
+                if (response.ok) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Attendance applied successfully',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        window.location.reload();  // This will reload the page after the user clicks "OK"
+                    });
+                } else {
+                    response.text().then(text => {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: text,
+                            icon: 'error',
+                            confirmButtonText: 'Try Again'
+                        });
+                    });
+                }
+            }).catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'An error occurred: ' + error.message,
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            });
+        }
+    </script>
+</div>
+

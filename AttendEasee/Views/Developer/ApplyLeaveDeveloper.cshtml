@@ -1,0 +1,27 @@
+﻿
+@{
+    ViewData["Title"] = "ApplyLeaveDeveloper";
+    Layout = "~/Views/Shared/_DeveloperLayout.cshtml";
+}
+
+<form method="post">
+    <h1>Your Leave Application</h1>
+    <div class="border p-3 m-4">
+        <div class="row pb-2">
+            <div class="mb-3">
+                <label for="StartDate">Leave Start Date</label>
+                <input type="Date" name="StartDate" class="form-control" id="StartDate" placeholder="select date">
+                @* <span asp-validation-for="RequestDate" class="text-danger"></span> *@
+            </div>
+
+            <div class="mb-3">
+                <label for="EndDate">Leave End Date</label>
+                <input type="Date" name="EndDate" class="form-control" id="EndDate" placeholder="select date">
+                @* <span asp-validation-for="RequestDate" class="text-danger"></span> *@
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width:150px">Submit Application</button>
+    </div>
+</form>
+

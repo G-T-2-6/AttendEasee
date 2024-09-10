@@ -48,7 +48,7 @@ namespace AttendEase.Controllers
                 }
                 else
                 {
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Index", "Developer");
                 }
             }
                 return View("Errror");
