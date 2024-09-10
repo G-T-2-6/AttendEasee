@@ -4,7 +4,6 @@
     Layout = "~/Views/Shared/_ManagerLayout.cshtml";
 }
 
-               <h2>@Context.Session.GetString("UserName")</h2>
 @*
 <form asp-controller="Manager" asp-action="ViewEmployeeAttendance" method="get" class="form-inline">
     <div class="form-group">
@@ -18,8 +17,9 @@
     @if (Model != null && Model.Count > 0)
     {
         <h3>Attendance for @Model.FirstOrDefault()?.User.Name</h3>
+    <input type="text" name="inputText" id="searchInput" class="form-control" placeholder="Search by anything">
 
-        <table class="table">
+    <table id="data-table" class="table">
             <thead>
                 <tr>
                     <th>Date</th>
@@ -43,3 +43,27 @@
     {
         <p>No attendance records found for the specified user.</p>
     }
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var input = document.getElementById('searchInput');
+    var table = document.getElementById('data-table');
+    input.addEventListener('input', function() {
+      var filter = input.value.toLowerCase();
+      var rows = table.getElementsByTagName('tr');
+      for (var i = 0; i < rows.length; i++) {
+        var cells = rows[i].getElementsByTagName('td');
+        var match = false;
+        for (var j = 0; j < cells.length; j++) {
+
+          var cellText = cells[j].textContent || cells[j].innerText;
+          if (cellText.toLowerCase().indexOf(filter) > -1) {
+            match = true;
+            break;
+          }
+        }
+        rows[i].style.display = match ? '' : 'none';
+      }
+    });
+  });
+</script>
