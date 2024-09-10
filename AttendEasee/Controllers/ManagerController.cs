@@ -5,6 +5,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AttendEase.Controllers
 {
+    //public class LeaveDisplayFormat
+    //{
+    //    public string EmployeeName {  get; set; }
+    //    public string LeaveStatus { get; set; }
+    //    public DateTime RequestDate { get; set; }
+    //    public DateTime? AccRejDate { get; set; }
+    //}
     public class ManagerController : Controller
     {
         private readonly ApplicationDBContext _db;
@@ -92,52 +99,124 @@ namespace AttendEase.Controllers
             return View(managerWithSubordinates); 
         }
 
-        [HttpGet]
-        public IActionResult ViewEmployeeAttendance()
+        public IActionResult ApplyLeaveManager()
         {
-            var userId = HttpContext.Session.GetInt32("UserId");
-            var attendanceRecords = _db.Attendances
-                .Where(x => x.UserId == userId)
-                .Include(x => x.User)
-                .OrderByDescending(x => x.Date)
-                .ToList();
-
-            if (attendanceRecords == null || !attendanceRecords.Any())
-            {
-                return View(new List<Attendance>());
-            }
-
-            return View(attendanceRecords);
-        }
-
-        [HttpGet]
-        public IActionResult ApproveAttendance(int userId)
-        {
-            var userid = HttpContext.Session.GetInt32("UserId");
-            var attendanceRecords = _db.Attendances
-            .Include(a => a.User)  // Include User information in the result
-            .Where(a => a.User.ManagerId == userid && a.AttendanceStatus == "Pending")
-            .ToList();
-            return View(attendanceRecords);
+            return View();
         }
 
         [HttpPost]
-        public IActionResult ApproveRejectAttendance(int userId, bool isApproved, [FromBody] Attendance att)
+        public IActionResult ApplyLeaveManager(Leave obj)
         {
-            var check = _db.Attendances
-            .Include(x => x.User)
-            .FirstOrDefault(x => x.UserId == att.UserId && x.AttendanceStatus == "Pending");
+            object userid = TempData["Details"];
+            int id = (int)userid;
+            manager = (User)_db.Users.FirstOrDefault(u => u.UserId == id);
 
-            if (check == null)
+            if (string.IsNullOrWhiteSpace(Request.Form["StartDate"]) || string.IsNullOrWhiteSpace(Request.Form["EndDate"]))
             {
-                return NotFound("No pending attendance record found for the specified user and project.");
+                TempData["FailureMessage"] = "You need to enter both start date and end date.";
+                return RedirectToAction("ViewLeaveManager");
             }
-            check.AttendanceStatus = att.AttendanceStatus;
-            check.AccRejDate = DateTime.Now;
 
-            _db.Attendances.Update(check);
+            DateTime startDate = DateTime.Parse(Request.Form["StartDate"]);
+            DateTime endDate = DateTime.Parse(Request.Form["EndDate"]);
+
+            if(endDate < startDate)
+            {
+                TempData["FailureMessage"] = "End Date cannot be before Start Date";
+                return RedirectToAction("ViewLeaveManager");   
+            }
+
+            int totalDays = (endDate - startDate).Days + 1;
+
+            if(totalDays > manager.AvailableLeavesCount)
+            {
+                TempData["FailureMessage"] = "Requested Days cannot be more than your leave credit";
+                return RedirectToAction("ViewLeaveManager");
+            }
+
+            for (DateTime date = startDate; date <= endDate; date = date.AddDays(1))
+            {
+                Leave leave = new Leave();
+                leave.LeaveStatus = "Pending";
+                leave.UserId = manager.UserId;
+                leave.RequestDate = date;
+                _db.Leaves.Add(leave);
+            }
             _db.SaveChanges();
-            return Ok("done");
+            TempData["Details"] = id;
+            TempData["SuccessMessage"] = "Leave Added Successfully";
+            return RedirectToAction("ViewLeaveManager");
+        }
+
+        public IActionResult ApproveLeaveManager()
+        {
+            object userid = TempData["Details"];
+            int id = (int)userid;
+            manager = (User)_db.Users.FirstOrDefault(u => u.UserId == id);
+            int managerId = manager.UserId;
+
+            List<Leave> employeeLeaves = (from user in _db.Users
+                                          join leave in _db.Leaves on user.UserId equals leave.UserId
+                                          where user.ManagerId == managerId && leave.LeaveStatus=="Pending"
+                                          select leave).ToList();
+
+            TempData["Details"] = id;
+            return View(employeeLeaves);
+        }
+
+        public IActionResult ViewLeaveManager()
+        {
+            object userid = TempData["Details"];
+            int id = (int)userid;
+            manager = (User)_db.Users.FirstOrDefault(u => u.UserId == id);
+            var managerId = manager.UserId;
+
+            List<Leave> employeeLeaves = _db.Leaves.Where(l => l.UserId == manager.UserId).ToList();
+
+            TempData["Details"] = id;
+
+            return View(employeeLeaves);
+        }
+
+        [HttpPost("ApproveLeave/{id}")]
+        public IActionResult ApproveLeave(int id)
+        {
+            if(id == 0 || id == null)
+            {
+                return NotFound();
+            }
+
+            var leaveObj = _db.Leaves.Find(id);
+            if (leaveObj == null) return NotFound();
+            leaveObj.LeaveStatus = "Approved";
+            leaveObj.AccRejDate = DateTime.Now;
+
+            var userObj = _db.Users.FirstOrDefault(u => u.UserId == leaveObj.UserId);
+            userObj.AvailableLeavesCount--;
+
+            _db.Leaves.Update(leaveObj);
+            _db.Users.Update(userObj);
+            _db.SaveChanges();
+
+            return RedirectToAction("ApproveLeaveManager");
+        }
+
+        [HttpPost("RejectLeave/{id}")]
+        public IActionResult RejectLeave(int id)
+        {
+            if (id == 0 || id == null)
+            {
+                return NotFound();
+            }
+            var leaveObj = _db.Leaves.Find(id);
+            if (leaveObj == null) return NotFound();
+            leaveObj.LeaveStatus = "Rejected";
+            leaveObj.AccRejDate = DateTime.Now;
+
+            _db.Leaves.Update(leaveObj);
+            _db.SaveChanges();
+
+            return RedirectToAction("ApproveLeaveManager");
         }
     }
 }

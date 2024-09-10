@@ -1,0 +1,72 @@
+﻿@model List<Leave>
+@{
+    ViewData["Title"] = "ViewLeaveManager";
+    Layout = "~/Views/Shared/_ManagerLayout.cshtml";
+}
+
+@{
+    bool success = TempData["SuccessMessage"] != null;
+
+    bool failure = TempData["FailureMessage"] != null;
+    string failureMessage = "Success";
+    if(failure)
+    {
+        failureMessage = TempData["FailureMessage"].ToString();
+    }
+}
+
+<h1>Your Leaves</h1>
+
+<table class="table table-bordered table-striped" style="width:100%">
+    <thead>
+        <tr>
+            <th>User ID</th>
+            <th>Leave Status</th>
+            <th>Requested for Date</th>
+            <th>Accept/Reject Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var obj in Model)
+        {
+            <tr>
+                <td width="25%">@obj.UserId</td>
+                <td width="25%">@obj.LeaveStatus</td>
+                <td width="25%">@obj.RequestDate</td>
+                @if(obj.AccRejDate != null)
+                {
+                    <td width="25%">@obj.AccRejDate</td>
+                }
+                else
+                {
+                    <td width="25%">Waiting for approval</td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (success)
+{
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="text/javascript">
+        Swal.fire({
+            title: 'Leave Request Added Successfully!',
+            text: 'Leave request has been added successfully. Waiting for approval',
+            icon: 'success',
+            confirmButtonText: 'OK'
+        });
+    </script>
+}
+@if(failure)
+{
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="text/javascript">
+        Swal.fire({
+            title: 'Failed!',
+            text: '@failureMessage',
+            icon: 'error',
+            confirmButtonText: 'Close'
+        });
+    </script>
+}

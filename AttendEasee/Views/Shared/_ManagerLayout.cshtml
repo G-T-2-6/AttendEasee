@@ -13,6 +13,22 @@
             font-family: 'Lato', sans-serif;
         }
     </style>
+    <!-- Toastr CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+
+    <!-- Toastr JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    
+    <script>
+        toastr.options = {
+            "closeButton": true,
+            "progressBar": true,
+            "positionClass": "toast-top-right", // Positioning
+            "timeOut": "5000", // Duration (in ms)
+            "extendedTimeOut": "1000"
+        };
+    </script>
+
 </head>
 <body>
     <header>
@@ -37,8 +53,9 @@
                                 Leave
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item" asp-area="" asp-controller="Manager" asp-action="Leave">Add Leave</a></li>
-                                <li><a class="dropdown-item" asp-area="" asp-controller="Leave" asp-action="Index">Approve Leaves</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Manager" asp-action="ApplyLeaveManager">Leave Application</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Manager" asp-action="ViewLeaveManager">Your Leaves</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Manager" asp-action="ApproveLeaveManager">Approve Leaves</a></li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown ml-1">
@@ -47,9 +64,8 @@
                                 Attendance
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item" asp-area="" asp-controller="Manager" asp-action="ApplyAttendance">Apply Attendance</a></li>
-                                <li><a class="dropdown-item" asp-area="" asp-controller="Manager" asp-action="ApproveAttendance">Approve Attendance</a></li>
-                                <li><a class="dropdown-item" asp-area="" asp-controller="Manager" asp-action="ViewEmployeeAttendance">View Employee Attendance</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Manager" asp-action="Index">Add Attendance</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Manager" asp-action="Index">Approve Attendance</a></li>
                             </ul>
                         </li>
                         <li class="ms-auto">
@@ -72,8 +88,6 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

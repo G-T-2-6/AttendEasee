@@ -1,0 +1,75 @@
+﻿@model List<Leave>
+@{
+    ViewData["Title"] = "ApproveLeaveManager";
+    Layout = "~/Views/Shared/_ManagerLayout.cshtml";
+}
+
+<h1>Pending Leave Requests</h1>
+
+<table class="table table-bordered table-striped" style="width:100%">
+    <thead>
+        <tr>
+            <th>User ID</th>
+            <th>Leave Status</th>
+            <th>Requested for Date</th>
+            <th>Approve</th>
+            <th>Reject</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var obj in Model)
+        {
+            <tr>
+                <td width="25%">@obj.UserId</td>
+                <td width="25%">@obj.LeaveStatus</td>
+                <td width="25%">@obj.RequestDate</td>
+                <td width="12.5%">
+                    <div class="w-75 btn-group" roles="group">
+                        <button class="btn btn-success" onclick="approveLeave(@obj.LeaveId)">
+                            Approve
+                        </button>
+                    </div>
+                </td>
+                <td width="12.5%">
+                    <div class="w-75 btn-group" roles="group">
+                        <button class="btn btn-danger" onclick="rejectLeave(@obj.LeaveId)">
+                            Reject
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script>
+    function approveLeave(leaveId) {
+        $.ajax({
+            url: `/ApproveLeave/${leaveId}`,
+            type: 'POST',
+            success: function (result) {
+                // alert("Leave Approved Successfully");
+                // Optionally, refresh the page or update the UI dynamically here
+                location.reload();
+            },
+            error: function (xhr, status, error) {
+                // alert("Error approving leave: " + xhr.responseText);
+            }
+        });
+    }
+
+    function rejectLeave(leaveId) {
+        $.ajax({
+            url: `/RejectLeave/${leaveId}`,
+            type: 'POST',
+            success: function (result) {
+                // alert("Leave Rejected Successfully");
+                // Optionally, refresh the page or update the UI dynamically here
+                location.reload();
+            },
+            error: function (xhr, status, error) {
+                // alert("Error rejecting leave: " + xhr.responseText);
+            }
+        });
+    }
+</script>
