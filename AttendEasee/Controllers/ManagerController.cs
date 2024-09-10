@@ -57,7 +57,6 @@ namespace AttendEase.Controllers
         [HttpPost]
         public IActionResult ApplyAttendance([FromBody] Attendance att)
         {
-
             var existingAttendance = _db.Attendances
                 .FirstOrDefault(x => x.UserId == att.UserId && x.Date == att.Date);
 
@@ -94,11 +93,13 @@ namespace AttendEase.Controllers
         }
 
         [HttpGet]
-        public IActionResult ViewEmployeeAttendance(int userId)
+        public IActionResult ViewEmployeeAttendance()
         {
+            var userId = HttpContext.Session.GetInt32("UserId");
             var attendanceRecords = _db.Attendances
                 .Where(x => x.UserId == userId)
                 .Include(x => x.User)
+                .OrderByDescending(x => x.Date)
                 .ToList();
 
             if (attendanceRecords == null || !attendanceRecords.Any())
@@ -112,8 +113,11 @@ namespace AttendEase.Controllers
         [HttpGet]
         public IActionResult ApproveAttendance(int userId)
         {
-
-            var attendanceRecords = _db.Attendances.Include(x => x.User).Where(x => x.AttendanceStatus == "Pending").ToList();
+            var userid = HttpContext.Session.GetInt32("UserId");
+            var attendanceRecords = _db.Attendances
+            .Include(a => a.User)  // Include User information in the result
+            .Where(a => a.User.ManagerId == userid && a.AttendanceStatus == "Pending")
+            .ToList();
             return View(attendanceRecords);
         }
 

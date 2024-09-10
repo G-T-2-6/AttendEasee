@@ -5,12 +5,6 @@
 <main class="form-signin w-100 m-auto">
     <form id="applyAttendanceForm">
         <h3 class="text-center mt-4 mb-4">Apply Attendance</h3>
-
-        <div class="form-floating mb-3 mt-1">
-            <input type="number" id="userId" name="userId" class="form-control" placeholder="Enter User ID" required />
-            <label for="userId">User ID</label>
-        </div>
-
         <div class="form-floating mb-3">
             <input type="date" id="attendanceDate" name="attendanceDate" class="form-control" placeholder="Select Attendance Date" required />
             <label for="attendanceDate">Attendance Date</label>
@@ -29,7 +23,7 @@
     <script>
         function applyAttendance() {
             var formData = {
-                UserId: $("#userId").val(),
+                UserId: @Context.Session.GetInt32("UserId"),
                 Date: $("#attendanceDate").val()
             };
 

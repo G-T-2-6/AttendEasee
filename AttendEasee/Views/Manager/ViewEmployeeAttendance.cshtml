@@ -2,22 +2,20 @@
 
 @{
     Layout = "~/Views/Shared/_ManagerLayout.cshtml";
-    var searchPerformed = Context.Request.Query.ContainsKey("userId"); // Check if search is performed
 }
 
-<h2>Search Attendance by User ID</h2>
-
+               <h2>@Context.Session.GetString("UserName")</h2>
+@*
 <form asp-controller="Manager" asp-action="ViewEmployeeAttendance" method="get" class="form-inline">
     <div class="form-group">
         <label for="userId">User ID: </label>
         <input type="number" name="userId" id="userId" class="form-control mx-2" required />
         <button type="submit" class="btn btn-primary">Search</button>
     </div>
-</form>
+</form>*@
 
-@if (searchPerformed)
-{
-    if (Model != null && Model.Count > 0)
+
+    @if (Model != null && Model.Count > 0)
     {
         <h3>Attendance for @Model.FirstOrDefault()?.User.Name</h3>
 
@@ -45,4 +43,3 @@
     {
         <p>No attendance records found for the specified user.</p>
     }
-}

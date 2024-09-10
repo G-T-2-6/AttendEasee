@@ -25,13 +25,13 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item active">
+                        <li class="nav-item active ml-1">
                             <a class="nav-link active" asp-area="" asp-controller="Manager" asp-action="Project">View Projects</a>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item ml-1">
                             <a class="nav-link active" asp-area="" asp-controller="Manager" asp-action="Employee">View Employees</a>
                         </li>
-                        <li class="nav-item dropdown">
+                        <li class="nav-item dropdown ml-1">
                             <a class="nav-link dropdown-toggle active text-dark fs-8" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
 
                                 Leave
@@ -41,7 +41,7 @@
                                 <li><a class="dropdown-item" asp-area="" asp-controller="Leave" asp-action="Index">Approve Leaves</a></li>
                             </ul>
                         </li>
-                        <li class="nav-item dropdown">
+                        <li class="nav-item dropdown ml-1">
                             <a class="nav-link dropdown-toggle active text-dark fs-8" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
 
                                 Attendance
@@ -52,7 +52,11 @@
                                 <li><a class="dropdown-item" asp-area="" asp-controller="Manager" asp-action="ViewEmployeeAttendance">View Employee Attendance</a></li>
                             </ul>
                         </li>
-                        <li><a asp-controller="Home" asp-action="Logout" class="btn btn-danger">Logout</a></li>
+                        <li class="ms-auto">
+                            <a asp-controller="Home" asp-action="Logout" style="background-color: rgba(17,171,221,1);border:1px solid black;" class="btn btn-primary text-dark my-2 my-sm-0">
+                                Logout
+                            </a>
+                        </li>
 
                     </ul>
                 </div>
@@ -68,6 +72,8 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

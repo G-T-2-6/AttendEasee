@@ -1,0 +1,131 @@
+﻿@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+@model List<Leave>
+
+    <h2>Leaves</h2>
+
+    <button class="btn btn-success" onclick="accRejLeave('Accepted')">Accept all Leaves</button>
+    <button class="btn btn-danger" onclick="accRejLeave('Rejected')">Reject all Leaves</button>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Sr No.</th>
+                <th>Leave ID</th>
+                <th>User</th>
+                <th>Status</th>
+                <th>Request Date</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var leave in Model)
+        {
+            <tr>
+                <td></td>
+                <td>@leave.LeaveId</td>
+                <td>@leave.User.UserName</td> <!-- Adjust this based on your User model's properties -->
+                <td>@leave.LeaveStatus</td>
+                <td>@leave.RequestDate.ToString("yyyy-MM-dd HH:mm:ss")</td> <!-- Format date as needed -->
+                <td>
+                    <button class="btn btn-success" onclick="updateLeave(@leave.LeaveId, 'Accepted')">Accept</button>
+                    <button class="btn btn-danger" onclick="updateLeave(@leave.LeaveId, 'Rejected')">Reject</button>
+                    @* <button class="btn btn-danger" onclick="deleteLeave(@leave.LeaveId)">Delete</button> *@
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+    @section scripts{
+        <script>
+        function accRejLeave(status){
+            const formData = {
+                LeaveStatus: status,
+            }
+
+            console.log(formData);
+
+            fetch(`/leave/AccRejLeave`, {
+                method: "POST",
+                body: JSON.stringify(formData),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            }).then(response => {
+                if (response.ok) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Update successful',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Request failed',
+                        icon: 'error',
+                        confirmButtonText: 'Try Again'
+                    });
+                }
+            }).catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'An error occurred: ' + error.message,
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            });
+        }
+
+
+        function updateLeave(leaveId, status) {
+            const formData = {
+                LeaveId: leaveId,
+                LeaveStatus: status
+            };
+
+            console.log(formData);
+
+            fetch(`UpdateLeave/${leaveId}`, {
+                method: "POST",
+                body: JSON.stringify(formData),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            }).then(response => {
+                if (response.ok) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Leave updated successfully',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Request failed',
+                        icon: 'error',
+                        confirmButtonText: 'Try Again'
+                    });
+                }
+            }).catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'An error occurred: ' + error.message,
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            });
+        }
+        </script>
+    }

@@ -95,6 +95,12 @@ namespace AttendEase.Controllers
             }
         }
 
+        public IActionResult ViewAllLeave()
+        {
+            var leaves = _dbContext.Leaves.Include(l => l.User).ToList();
+            return View(leaves);
+        }
+
         //[HttpPost]
         //public IActionResult AssignProject(string projectCode, int userId, string role)
         //{
