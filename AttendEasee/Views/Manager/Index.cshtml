@@ -1,0 +1,26 @@
+﻿@{
+    Layout = "~/Views/Shared/_ManagerLayout.cshtml";
+}
+
+<h1>Manager Index Page</h1>
+@{
+    bool loginSuccess = TempData["ismanager"] != null && (bool)TempData["ismanager"];
+}
+
+
+
+<div>
+    @if (loginSuccess)
+    {
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script type="text/javascript">
+            Swal.fire({
+                title: 'Login Successful!',
+                text: 'Manager successfully logged in.',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            });
+        </script>
+    }
+    <h1>User</h1>
+</div>

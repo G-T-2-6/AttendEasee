@@ -11,6 +11,8 @@ namespace AttendEase.Controllers
 
         private readonly ApplicationDBContext _dbcontext;
 
+        
+
         public HomeController(ApplicationDBContext dbcontext)
         {
             _dbcontext = dbcontext;
@@ -27,17 +29,24 @@ namespace AttendEase.Controllers
         {
             //Console.WriteLine(user.Email);
             var result= _dbcontext.Users.ToList();
-            var fetched = result.SingleOrDefault(p => p.Email == user.Email && p.Password == user.Password && p.IsAdmin==true);
+            var fetched = result.SingleOrDefault(p => p.Email == user.Email && p.Password == user.Password);
             
-            if (fetched != null)
-            {
-                TempData["LoginSuccess"] = true;
-                return RedirectToAction("Index", "User"); //addded now
+            if (fetched != null) {
+
+                if (fetched.IsManager == true)
+                {
+                TempData["Details"] = fetched.UserId;
+                    TempData["ismanager"] = true;
+                return RedirectToAction("Index", "Manager");
+                }
+                else if(fetched.IsAdmin==true)
+                {
+                    TempData["LoginSuccess"] = true;
+                    return RedirectToAction("Index", "User");
+                }
             }
-            else
-            {
                 return View("Errror");
-            }
+            
         }
 
         public IActionResult Errror()

@@ -1,0 +1,88 @@
+﻿@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+@model IEnumerable<AttendEase.Models.Attendance>
+
+<h2>Attendance Records</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Employee Name</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.User.Name</td>
+                <td>@item.Date.ToShortDateString()</td>
+                <td>@item.AttendanceStatus</td>
+                <td>
+                    @if (item.AttendanceStatus == "Pending")
+                    {
+
+                            <input type="hidden" id="userId" name="userId" value="@item.UserId" />
+                            <button type="button" name="isApproved" onclick="AccRejAttendance('Approved')" value="true" class="btn btn-success">Approve</button>
+                            <button type="button" name="isApproved" onclick="AccRejAttendance('Rejected')" value="false" class="btn btn-danger">Reject</button>
+                    }
+                    else
+                    {
+                        <span>@item.AttendanceStatus</span>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    <script>
+        function AccRejAttendance(status) {
+            formData = {
+                UserId: $("#userId").val(),
+                AttendanceStatus: status
+            }
+
+            fetch(`/Attendance/ApproveRejectAttendance`, {
+                method: "POST",
+                body: JSON.stringify(formData),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            }).then(response => {
+                if (response.ok) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Update successful',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Request failed',
+                        icon: 'error',
+                        confirmButtonText: 'Try Again'
+                    });
+                }
+            }).catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'An error occurred: ' + error.message,
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            });
+        }
+
+    </script>
+}

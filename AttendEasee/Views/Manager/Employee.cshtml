@@ -1,0 +1,29 @@
+﻿@model List<User>
+@{
+    Layout = "~/Views/Shared/_ManagerLayout.cshtml";
+}
+
+<div class="container">
+    <div class="row">
+        <h3 class="text-center mt-1">Employee Details</h3>
+        @foreach (var item in Model)
+        {
+            <div class="col-md-4 mb-3 mt-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h3>@item.Name</h3>
+                        <h4></h4>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5>@item.UserName</h5>
+
+                        </div>
+                        <h6>@item.Email</h6>
+                        <h6>Project Id : @item.ProjectId</h6>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+
