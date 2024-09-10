@@ -218,5 +218,53 @@ namespace AttendEase.Controllers
 
             return RedirectToAction("ApproveLeaveManager");
         }
+
+        [HttpGet]
+        public IActionResult ViewEmployeeAttendance()
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            var attendanceRecords = _db.Attendances
+                .Where(x => x.UserId == userId)
+                .Include(x => x.User)
+                .OrderByDescending(x => x.Date)
+                .ToList();
+
+            if (attendanceRecords == null || !attendanceRecords.Any())
+            {
+                return View(new List<Attendance>());
+            }
+
+            return View(attendanceRecords);
+        }
+
+        [HttpGet]
+        public IActionResult ApproveAttendance(int userId)
+        {
+            var userid = HttpContext.Session.GetInt32("UserId");
+            var attendanceRecords = _db.Attendances
+            .Include(a => a.User)  // Include User information in the result
+            .Where(a => a.User.ManagerId == userid && a.AttendanceStatus == "Pending")
+            .ToList();
+            return View(attendanceRecords);
+        }
+
+        [HttpPost]
+        public IActionResult ApproveRejectAttendance(int userId, bool isApproved, [FromBody] Attendance att)
+        {
+            var check = _db.Attendances
+            .Include(x => x.User)
+            .FirstOrDefault(x => x.UserId == att.UserId && x.AttendanceStatus == "Pending");
+
+            if (check == null)
+            {
+                return NotFound("No pending attendance record found for the specified user and project.");
+            }
+            check.AttendanceStatus = att.AttendanceStatus;
+            check.AccRejDate = DateTime.Now;
+
+            _db.Attendances.Update(check);
+            _db.SaveChanges();
+            return Ok("done");
+        }
     }
 }

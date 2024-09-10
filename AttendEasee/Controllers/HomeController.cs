@@ -37,8 +37,9 @@ namespace AttendEase.Controllers
 
                 if (fetched.IsManager == true)
                 {
-                TempData["ismanager"] = true;
-                return RedirectToAction("Index", "Manager");
+                    TempData["ismanager"] = true;
+                    TempData["Details"] = fetched.UserId;
+                    return RedirectToAction("Index", "Manager");
                 }
                 else if(fetched.IsAdmin==true)
                 {

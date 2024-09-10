@@ -1,4 +1,5 @@
 using AttendEase.Data;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
 
