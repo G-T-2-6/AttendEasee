@@ -8,17 +8,46 @@
     <main class="form-signin w-100 m-auto">
         <form id="projectForm">
             <h3 class="text-center mt-4">Modify User Details</h3>
-            <div class="form-floating mb-3">
-                <input type="text" name="UserName" class="form-control" id="name" placeholder="Enter Employee UserName">
-                <label for="name">User Name</label>
-            </div>
-            <div class="form-floating mb-3">
-                <input type="text" name="Designation" class="form-control" id="location" placeholder="Select Designation">
-                <label for="location">Designation</label>
-            </div>
-            <div class="form-floating mb-3">
-                <input type="text" name="Location" class="form-control" id="location" placeholder="Enter Project Location">
-                <label for="location">Location</label>
+         <div class="form-floating mb-1 mt-1">
+            <select name="UserId" class="form-control" id="projectDropdown">
+                @foreach (var user in ViewBag.Users)
+                {
+                    <option value="@user.UserId">@user.UserName</option>
+                }
+            </select>
+            <label for="UserId">Select User</label>
+        </div> 
+        <div class="form-floating mb-1 mt-1">
+            <input type="text" name="Name" class="form-control" id="code" placeholder="Enter Name">
+            <label for="name">Name</label>
+        </div>
+        <div class="form-floating mb-1">
+            <input type="email" name="Email" class="form-control" id="name" placeholder="Enter Email">
+            <label for="name">Email</label>
+        </div>
+        <div class="form-floating mb-1">
+            <select name="IsManager" class="form-control" id="isManager">
+                <option value="false">No</option>
+                <option value="true">Yes</option>
+            </select>
+            <label for="isManager">Is Manager</label>
+        </div>
+
+            <div class="form-floating mb-2">
+                <select name="DesignationId" class="form-control" id="designationDropdown">
+                    @foreach (var designation in ViewBag.Designations)
+                    {
+                        var designationParts = designation.Split('-');
+                        if (designationParts.Length == 2) // Check if split resulted in two parts
+                        {
+                            var designationId = designationParts[0]; // Get the ID
+                            var designationRole = designationParts[1]; // Get the Role
+
+                            <option value="@designationId">@designationRole</option>
+                        }
+                    }
+                </select>
+                <label for="designationDropdown">Select Designation</label>
             </div>
 
             <div class="row">
@@ -38,50 +67,38 @@
             const formData = new FormData(form);
 
             fetch(`/Employee/${action}`, {
-                method: getMethod(action),
+                method: 'PUT',
                 body: formData,
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest'
                 }
-            }).then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        Swal.fire({
-                            title: 'Success!',
-                            text: 'Data ' + action + ' successful',
-                            icon: 'success',
-                            confirmButtonText: 'OK'
-                        }).then(() => {
-                            window.location.reload();
-                        });
-                    } else {
-                        Swal.fire({
-                            title: 'Error!',
-                            text: 'Request failed',
-                            icon: 'error',
-                            confirmButtonText: 'Try Again'
-                        });
-                    }
-                }).catch(error => {
-                    console.error('Error:', error);
+            }).then(response => {
+                if (response.ok) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Data ' + action + ' successful',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        window.location.reload(); 
+                    });
+                } else {
                     Swal.fire({
                         title: 'Error!',
-                        text: 'An error occurred: ' + error.message,
+                        text: 'Request failed',
                         icon: 'error',
-                        confirmButtonText: 'OK'
+                        confirmButtonText: 'Try Again'
                     });
+                }
+            }).catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'An error occurred: ' + error.message,
+                    icon: 'error',
+                    confirmButtonText: 'OK'
                 });
-        }
-
-        function getMethod(action) {
-            switch (action) {
-                case 'Update':
-                    return 'PUT';
-                case 'Delete':
-                    return 'PUT';
-                default:
-                    return 'PUT';
-            }
+            });
         }
     </script>
 </div>

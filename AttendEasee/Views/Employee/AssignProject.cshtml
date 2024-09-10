@@ -1,0 +1,38 @@
+﻿@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+
+
+<div>
+    <main class="form-signin w-100 m-auto">
+        <form id="projectForm" method="Post" asp-controller="Employee" asp-action="AssignProject">
+            <h3 class="text-center mt-4">Modify User Details</h3>
+
+            <div class="form-floating mb-3 mt-5">
+            <select name="ProjectCode" class="form-control" id="code">
+                    @foreach (var projectCode in ViewBag.Projects)
+            {
+            <option value="@projectCode">@projectCode</option>
+            }
+            </select>
+            <label for="code">Project Code</label>
+            </div>
+            <div class="form-floating mb-1">
+                <select name="UserId" class="form-control" id="projectDropdown">
+                    @foreach (var user in ViewBag.UserIds)
+                    {
+                        <option value="@user.UserId">@user.UserName</option>
+                    }
+                </select>
+                <label for="projectDropdown">Select User</label>
+            </div>
+
+            <div class="row">
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary w-100 py-2" style="background-color: rgba(17,171,221,1);">Assign Project</button>
+                </div>
+            </div>
+        </form>
+    </main>
+</div>

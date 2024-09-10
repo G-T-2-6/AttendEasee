@@ -66,13 +66,98 @@ namespace AttendEase.Controllers
             return RedirectToAction("Index", "Employee");
         }
 
+        //[HttpGet]
+        //public IActionResult Modify()
+        //{
+        //    var projectIds = _dbContext.Designations
+        //                    .Select(p => p.DesignationId)
+        //                    .ToList();
+        //    return View(projectIds);
+        //}
+
         [HttpGet]
         public IActionResult Modify()
         {
-            var projectIds = _dbContext.Designations
-                            .Select(p => p.DesignationId)
-                            .ToList();
-            return View(projectIds);
+            var designations = _dbContext.Designations
+            .Select(d => d.DesignationId + "-" + d.Roles)
+            .ToList();
+
+            var users = _dbContext.Users.Where(u => u.IsAdmin != true).ToList();
+
+            ViewBag.Designations = designations;
+            ViewBag.Users = users;
+
+            return View(designations);
+        }
+
+
+        // Update Employee Details
+        [HttpPut]
+        public IActionResult Update([FromForm] User updatedUser)
+        {
+            Console.WriteLine("===========================================================");
+            Console.WriteLine(updatedUser.UserName);
+            Console.WriteLine("===========================================================");
+
+            var user = _dbContext.Users.SingleOrDefault(u => u.UserId == updatedUser.UserId);
+
+            if (user == null)
+            {
+                return Json(new { success = false, message = "User does not exist" });
+            }
+
+            // Update user details
+            user.Name = updatedUser.Name;
+            user.Email = updatedUser.Email;
+            user.DesignationId = updatedUser.DesignationId;
+            user.IsManager = updatedUser.IsManager;
+
+            _dbContext.SaveChanges();
+
+            return Json(new { success = true, message = "User details updated successfully." });
+        }
+
+        [HttpGet]
+        public IActionResult AssignProject()
+        {
+            var projects = _dbContext.Projects.Select(p => p.ProjectCode).ToList();
+
+            var userId = _dbContext.Users.Where(u => u.IsAdmin != true).ToList();
+
+            ViewBag.Projects = projects;
+            ViewBag.UserIds = userId;
+
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult AssignProject(string UserId, string ProjectCode)
+        {
+
+            Console.WriteLine(UserId);
+            Console.WriteLine(ProjectCode);
+            Console.WriteLine("=============================================");
+            var user = _dbContext.Users.SingleOrDefault(u => u.UserId.ToString() == UserId);
+
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
+            // Assign new project
+            if (ProjectCode != "N/A")
+            {
+                var project = _dbContext.Projects.FirstOrDefault(p => p.ProjectCode == ProjectCode);
+                if (project != null)
+                {
+                    user.ProjectId = project.ProjectId;
+                }
+            }
+
+            _dbContext.SaveChanges();
+
+            TempData["ProjectAssignSuccess"] = true;
+            return RedirectToAction("Index", "Employee");
         }
 
 
@@ -94,36 +179,5 @@ namespace AttendEase.Controllers
                 return Json(new { success = false, message = "User does not exist" });
             }
         }
-
-        public IActionResult ViewAllLeave()
-        {
-            var leaves = _dbContext.Leaves.Include(l => l.User).ToList();
-            return View(leaves);
-        }
-
-        //[HttpPost]
-        //public IActionResult AssignProject(string projectCode, int userId, string role)
-        //{
-        //    // Fetch the project by ProjectId
-        //    var project = _dbContext.Projects.SingleOrDefault(p => p.ProjectCode == projectCode);
-        //    if (project == null)
-        //    {
-        //        return NotFound("Project not found");
-        //    }
-
-        //    // Fetch the user by UserId (either Manager or Employee)
-        //    var user = _dbContext.Users.SingleOrDefault(u => u.UserId == userId);
-        //    if (user == null)
-        //    {
-        //        return NotFound("User not found");
-        //    }
-
-        //    user.ProjectId = project.ProjectId;
-
-
-        //    _dbContext.SaveChanges();
-
-        //    return Ok("User assigned to project successfully");
-        //}
     }
 }
