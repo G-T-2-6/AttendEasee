@@ -1,4 +1,4 @@
-﻿using AttendEase.Data;
+﻿    using AttendEase.Data;
 using AttendEase.Filters;
 using AttendEase.Models;
 using Microsoft.AspNetCore.Mvc;
