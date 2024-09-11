@@ -42,16 +42,18 @@ namespace AttendEase.Controllers
                 if (fetched.IsManager == true)
                 {
                     TempData["ismanager"] = true;
-                    TempData["Details"] = fetched.UserId;
+                    HttpContext.Session.SetString("UserRole", "Manager");  // Store 'Manager' role
                     return RedirectToAction("Index", "Manager");
                 }
                 else if(fetched.IsAdmin==true)
                 {
                     TempData["LoginSuccess"] = true;
+                    HttpContext.Session.SetString("UserRole", "Admin");  // Store 'Admin' role
                     return RedirectToAction("Index", "Admin");
                 }
                 else
                 {
+                    HttpContext.Session.SetString("UserRole", "Developer");
                     return RedirectToAction("Index", "Developer");
                 }
             }
@@ -59,11 +61,17 @@ namespace AttendEase.Controllers
             
         }
 
+        public IActionResult Forbidden()
+        {
+            return View();
+        }
+
         public IActionResult Errror()
         {
             return View();
         }
 
+        // Logout function to clear session
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();

@@ -1,10 +1,13 @@
 ﻿using AttendEase.Data;
+using AttendEase.Filters;
 using AttendEase.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace AttendEasee.Controllers
 {
+    [SessionCheck]
+    [RoleCheck("Developer")]
     public class DeveloperController : Controller
     {
         private readonly IUserRepository _userRepository;

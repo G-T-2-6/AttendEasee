@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace AttendEase.Migrations
+namespace AttendEasee.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20240908145741_addedProjectModel")]
-    partial class addedProjectModel
+    [Migration("20240911044108_NewFresh")]
+    partial class NewFresh
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -56,10 +56,7 @@ namespace AttendEase.Migrations
             modelBuilder.Entity("AttendEase.Models.Designation", b =>
                 {
                     b.Property<int>("DesignationId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DesignationId"));
 
                     b.Property<int>("LeaveCredit")
                         .HasColumnType("int");
@@ -83,6 +80,18 @@ namespace AttendEase.Migrations
 
                     b.Property<DateTime?>("AccRejDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("LeaveStatus")
                         .IsRequired()

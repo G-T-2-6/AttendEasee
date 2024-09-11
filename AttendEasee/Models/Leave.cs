@@ -10,5 +10,12 @@ namespace AttendEase.Models
 
         public int UserId { get; set; }
         public User User { get; set; }
+
+        public string Description { get; set; }
+
+        public string Address { get; set; }
+
+        public string FilePath { get; set; }
+
     }
 }

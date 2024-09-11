@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace AttendEase.Migrations
+namespace AttendEasee.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
     partial class ApplicationDBContextModelSnapshot : ModelSnapshot
@@ -78,6 +78,18 @@ namespace AttendEase.Migrations
                     b.Property<DateTime?>("AccRejDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("LeaveStatus")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -120,7 +132,10 @@ namespace AttendEase.Migrations
             modelBuilder.Entity("AttendEase.Models.User", b =>
                 {
                     b.Property<int>("UserId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"));
 
                     b.Property<int?>("AvailableLeavesCount")
                         .HasColumnType("int");

@@ -5,9 +5,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
 using System.Security.Cryptography;
+using AttendEase.Filters;
 
 namespace AttendEasee.Controllers
 {
+    [SessionCheck]
+    [RoleCheck("Admin")]
     public class AdminController : Controller
     {
         private readonly IAttendanceRepository _attendanceRepository;

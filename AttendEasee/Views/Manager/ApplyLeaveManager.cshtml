@@ -6,20 +6,35 @@
 
 
 
-<form method="post">
+<form method="post" enctype="multipart/form-data">
     <h1>Your Leave Application</h1>
     <div class="border p-3 m-4">
         <div class="row pb-2">
             <div class="mb-3">
                 <label for="StartDate">Leave Start Date</label>
-                <input type="Date" name="StartDate" class="form-control" id="StartDate" placeholder="select date">
+                <input type="Date" name="StartDate" class="form-control" id="StartDate" placeholder="select date" required>
                 @* <span asp-validation-for="RequestDate" class="text-danger"></span> *@
             </div>
 
             <div class="mb-3">
                 <label for="EndDate">Leave End Date</label>
-                <input type="Date" name="EndDate" class="form-control" id="EndDate" placeholder="select date">
+                <input type="Date" name="EndDate" class="form-control" id="EndDate" placeholder="select date" required>
                 @* <span asp-validation-for="RequestDate" class="text-danger"></span> *@
+            </div>
+
+            <div class="mb-3">
+                <label for="Description">Reason for Leave</label>
+                <textarea name="Description" class="form-control" id="Description" placeholder="Enter reason for leave" required></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="Address">Address during Leave</label>
+                <input type="text" name="Address" class="form-control" id="Address" placeholder="Enter address during leave" required />
+            </div>
+
+            <div class="mb-3">
+                <label for="File">Upload Supporting Document</label>
+                <input type="file" name="File" class="form-control" id="File" required />
             </div>
         </div>
 

@@ -1,8 +1,12 @@
-﻿using AttendEase.Data;
+﻿using AttendEase.Filters;
+using AttendEase.Data;
 using AttendEase.Models;
 using AttendEasee.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
+using System.IO;
+using Microsoft.AspNetCore.Hosting;
 
 namespace AttendEase.Controllers
 {
@@ -13,8 +17,12 @@ namespace AttendEase.Controllers
     //    public DateTime RequestDate { get; set; }
     //    public DateTime? AccRejDate { get; set; }
     //}
+    [SessionCheck]
+    [RoleCheck("Manager")]
     public class ManagerController : Controller
     {
+        private readonly IWebHostEnvironment _webHostEnvironment;
+
         private readonly IAttendanceRepository _attendanceRepository;
         private readonly ILeaveRepository _leaveRepository;
         private readonly IUserRepository _userRepository;
@@ -23,12 +31,14 @@ namespace AttendEase.Controllers
         public ManagerController(IAttendanceRepository attendanceRepository, 
             ILeaveRepository leaveRepository, 
             IUserRepository userRepository,
-            IProjectRepository projectRepository)
+            IProjectRepository projectRepository,
+            IWebHostEnvironment webHostEnvironment)
         {
             _attendanceRepository = attendanceRepository;
             _leaveRepository = leaveRepository;
             _userRepository = userRepository;
             _projectRepository = projectRepository;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         private User manager { get; set; }
@@ -169,11 +179,24 @@ namespace AttendEase.Controllers
             return View();
         }
 
-        [HttpPost]
-        public IActionResult ApplyLeaveManager(Leave obj)
+        [HttpPost]    
+        public async Task<IActionResult> ApplyLeaveManager(Leave leave, IFormFile file)
         {
-            var userid = HttpContext.Session.GetInt32("UserId");
-            manager = _userRepository.GetUserById(userid ?? 0);
+            var userId = HttpContext.Session.GetInt32("UserId");
+
+            if (userId == null)
+            {
+                TempData["FailureMessage"] = "Session expired. Please log in again.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            manager = _userRepository.GetUserById(userId ?? 0);
+
+            if (manager == null)
+            {
+                TempData["FailureMessage"] = "Manager not found. Please try again.";
+                return RedirectToAction("ViewLeaveManager");
+            }
 
             if (string.IsNullOrWhiteSpace(Request.Form["StartDate"]) || string.IsNullOrWhiteSpace(Request.Form["EndDate"]))
             {
@@ -198,13 +221,34 @@ namespace AttendEase.Controllers
                 return RedirectToAction("ViewLeaveManager");
             }
 
+            if (file != null && file.Length > 0)
+            {
+                string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads");
+                string uniqueFileName = Guid.NewGuid().ToString() + "_" + file.FileName;
+                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(fileStream);
+                }
+
+                leave.FilePath = "/uploads/" + uniqueFileName;
+            }
+
             for (DateTime date = startDate; date <= endDate; date = date.AddDays(1))
             {
-                Leave leave = new Leave();
-                leave.LeaveStatus = "Pending";
-                leave.UserId = manager.UserId;
-                leave.RequestDate = date;
-                _leaveRepository.AddLeave(leave);
+                
+                
+                Leave newLeave = new Leave()
+                {
+                    LeaveStatus = "Pending",
+                    UserId = manager.UserId,
+                    RequestDate = date,
+                    Description = leave.Description,
+                    Address = leave.Address,
+                    FilePath = leave.FilePath
+                };
+                _leaveRepository.AddLeave(newLeave);
             }
             _leaveRepository.Save();
             TempData["SuccessMessage"] = "Leave Added Successfully";
