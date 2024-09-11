@@ -15,10 +15,20 @@ namespace AttendEase.Controllers
     //}
     public class ManagerController : Controller
     {
-        private readonly ApplicationDBContext _db;
-        public ManagerController(ApplicationDBContext db)
+        private readonly IAttendanceRepository _attendanceRepository;
+        private readonly ILeaveRepository _leaveRepository;
+        private readonly IUserRepository _userRepository;
+        private readonly IProjectRepository _projectRepository;
+
+        public ManagerController(IAttendanceRepository attendanceRepository, 
+            ILeaveRepository leaveRepository, 
+            IUserRepository userRepository,
+            IProjectRepository projectRepository)
         {
-            _db = db;
+            _attendanceRepository = attendanceRepository;
+            _leaveRepository = leaveRepository;
+            _userRepository = userRepository;
+            _projectRepository = projectRepository;
         }
 
         private User manager { get; set; }
@@ -34,8 +44,8 @@ namespace AttendEase.Controllers
         public IActionResult Project()
         {
             var userid = HttpContext.Session.GetInt32("UserId");
-            manager = (User)_db.Users.FirstOrDefault(u => u.UserId == userid);
-            project = (Project)_db.Projects.FirstOrDefault(p => p.ProjectId == manager.ProjectId);
+            manager = _userRepository.GetUserById(userid ?? 0);
+            project = _projectRepository.GetProjectByProjectId((int)manager.ProjectId);
             return View(project);
         }
 
@@ -63,8 +73,7 @@ namespace AttendEase.Controllers
         [HttpPost]
         public IActionResult ApplyAttendance([FromBody] Attendance att)
         {
-            var existingAttendance = _db.Attendances
-                .FirstOrDefault(x => x.UserId == att.UserId && x.Date == att.Date);
+            var existingAttendance = _attendanceRepository.GetAttendanceByUserIdAndDate(att.UserId, att.Date);
 
             if (existingAttendance != null)
             {
@@ -77,8 +86,8 @@ namespace AttendEase.Controllers
             att.AttendanceId = 0;
 
 
-            _db.Attendances.Add(att);
-            _db.SaveChanges();
+            _attendanceRepository.AddAttendance(att);
+            _attendanceRepository.Save();
 
             return Ok(new { message = "Attendance applied successfully" });
         }
@@ -86,9 +95,9 @@ namespace AttendEase.Controllers
         public IActionResult Employee() 
         {
             var userid = HttpContext.Session.GetInt32("UserId");
-            int id = (int)userid;
-            manager = (User)_db.Users.FirstOrDefault(u => u.UserId == id);
-            var managerWithSubordinates = _db.Users.Where(u => u.ManagerId == manager.UserId).ToList();
+            manager = _userRepository.GetUserById(userid ?? 0);
+
+            var managerWithSubordinates = _userRepository.GetManagerSubordinates(manager.UserId);
             if (manager == null || managerWithSubordinates == null)
             {
                 return RedirectToAction("Errror", "Home");
@@ -119,8 +128,8 @@ namespace AttendEase.Controllers
             }
 
             string oldPassword = Request.Form["OldPassword"].ToString();
-            string oldPasswordHash = AdminController.HashPassword(oldPassword);
-            var userObj = (User)_db.Users.FirstOrDefault(u => u.UserId == userId);
+            string oldPasswordHash = _userRepository.HashPassword(oldPassword);
+            var userObj = _userRepository.GetUserById(userId ?? 0);
 
             if (userObj == null)
 
@@ -139,7 +148,7 @@ namespace AttendEase.Controllers
             }
 
             string newPassword = Request.Form["NewPassword"].ToString();
-            string newPasswordHash = AdminController.HashPassword(newPassword);
+            string newPasswordHash = _userRepository.HashPassword(newPassword);
             if (userObj.Password == newPasswordHash)
 
             {
@@ -147,8 +156,7 @@ namespace AttendEase.Controllers
                 return RedirectToAction("ChangePassword", "Manager");
             }
             userObj.Password = newPasswordHash;
-            _db.Users.Update(userObj);
-            _db.SaveChanges();
+            _userRepository.UpdateUser(userObj);
             TempData["SuccessMessage"] = "Password changed successfully!";
             return RedirectToAction("Index", "Manager");
 
@@ -165,8 +173,7 @@ namespace AttendEase.Controllers
         public IActionResult ApplyLeaveManager(Leave obj)
         {
             var userid = HttpContext.Session.GetInt32("UserId");
-            int id = (int)userid;
-            manager = (User)_db.Users.FirstOrDefault(u => u.UserId == id);
+            manager = _userRepository.GetUserById(userid ?? 0);
 
             if (string.IsNullOrWhiteSpace(Request.Form["StartDate"]) || string.IsNullOrWhiteSpace(Request.Form["EndDate"]))
             {
@@ -197,9 +204,9 @@ namespace AttendEase.Controllers
                 leave.LeaveStatus = "Pending";
                 leave.UserId = manager.UserId;
                 leave.RequestDate = date;
-                _db.Leaves.Add(leave);
+                _leaveRepository.AddLeave(leave);
             }
-            _db.SaveChanges();
+            _leaveRepository.Save();
             TempData["SuccessMessage"] = "Leave Added Successfully";
             return RedirectToAction("ViewLeaveManager");
         }
@@ -207,14 +214,10 @@ namespace AttendEase.Controllers
         public IActionResult ApproveLeaveManager()
         {
             var userid = HttpContext.Session.GetInt32("UserId");
-            int id = (int)userid;
-            manager = (User)_db.Users.FirstOrDefault(u => u.UserId == id);
+            manager = _userRepository.GetUserById(userid ?? 0);
             int managerId = manager.UserId;
 
-            List<Leave> employeeLeaves = (from user in _db.Users
-                                          join leave in _db.Leaves on user.UserId equals leave.UserId
-                                          where user.ManagerId == managerId && leave.LeaveStatus=="Pending"
-                                          select leave).ToList();
+            List<Leave> employeeLeaves = _leaveRepository.GetPendingLeavesByManagerId(managerId);
 
             return View(employeeLeaves);
         }
@@ -222,13 +225,9 @@ namespace AttendEase.Controllers
         public IActionResult ViewLeaveManager()
         {
             var userid = HttpContext.Session.GetInt32("UserId");
-            int id = (int)userid;
-            manager = (User)_db.Users.FirstOrDefault(u => u.UserId == id);
+            manager = _userRepository.GetUserById(userid ?? 0);
             var managerId = manager.UserId;
-
-            List<Leave> employeeLeaves = _db.Leaves.Where(l => l.UserId == manager.UserId).ToList();
-
-
+            List<Leave> employeeLeaves = _leaveRepository.GetEmployeeLeaves(managerId);
             return View(employeeLeaves);
         }
 
@@ -240,17 +239,16 @@ namespace AttendEase.Controllers
                 return NotFound();
             }
 
-            var leaveObj = _db.Leaves.Find(id);
+            var leaveObj = _leaveRepository.GetLeaveById(id);
             if (leaveObj == null) return NotFound();
             leaveObj.LeaveStatus = "Approved";
             leaveObj.AccRejDate = DateTime.Now;
 
-            var userObj = _db.Users.FirstOrDefault(u => u.UserId == leaveObj.UserId);
+            var userObj = _userRepository.GetUserById(leaveObj.UserId);
             userObj.AvailableLeavesCount--;
 
-            _db.Leaves.Update(leaveObj);
-            _db.Users.Update(userObj);
-            _db.SaveChanges();
+            _leaveRepository.UpdateLeave(leaveObj);
+            _userRepository.UpdateUser(userObj);
 
             return RedirectToAction("ApproveLeaveManager");
         }
@@ -262,13 +260,12 @@ namespace AttendEase.Controllers
             {
                 return NotFound();
             }
-            var leaveObj = _db.Leaves.Find(id);
+            var leaveObj = _leaveRepository.GetLeaveById(id);
             if (leaveObj == null) return NotFound();
             leaveObj.LeaveStatus = "Rejected";
             leaveObj.AccRejDate = DateTime.Now;
 
-            _db.Leaves.Update(leaveObj);
-            _db.SaveChanges();
+            _leaveRepository.UpdateLeave(leaveObj);
 
             return RedirectToAction("ApproveLeaveManager");
         }
@@ -277,11 +274,7 @@ namespace AttendEase.Controllers
         public IActionResult ViewEmployeeAttendance()
         {
             var userId = HttpContext.Session.GetInt32("UserId");
-            var attendanceRecords = _db.Attendances
-                .Where(x => x.UserId == userId)
-                .Include(x => x.User)
-                .OrderByDescending(x => x.Date)
-                .ToList();
+            var attendanceRecords = _attendanceRepository.GetAttendanceByUserId(userId ?? 0);
 
             if (attendanceRecords == null || !attendanceRecords.Any())
             {
@@ -295,19 +288,14 @@ namespace AttendEase.Controllers
         public IActionResult ApproveAttendance(int userId)
         {
             var userid = HttpContext.Session.GetInt32("UserId");
-            var attendanceRecords = _db.Attendances
-            .Include(a => a.User)  // Include User information in the result
-            .Where(a => a.User.ManagerId == userid && a.AttendanceStatus == "Pending")
-            .ToList();
+            var attendanceRecords = _attendanceRepository.GetPendingAttendanceByManager(userId);
             return View(attendanceRecords);
         }
 
         [HttpPost]
         public IActionResult ApproveRejectAttendance(int userId, bool isApproved, [FromBody] Attendance att)
         {
-            var check = _db.Attendances
-            .Include(x => x.User)
-            .FirstOrDefault(x => x.UserId == att.UserId && x.AttendanceStatus == "Pending");
+            var check = _attendanceRepository.GetPendingAttendance(userId);
 
             if (check == null)
             {
@@ -316,8 +304,7 @@ namespace AttendEase.Controllers
             check.AttendanceStatus = att.AttendanceStatus;
             check.AccRejDate = DateTime.Now;
 
-            _db.Attendances.Update(check);
-            _db.SaveChanges();
+            _attendanceRepository.UpdateAttendance(check);
             return Ok("done");
         }
     }

@@ -10,27 +10,23 @@ namespace AttendEasee.Controllers
 {
     public class AdminController : Controller
     {
+        private readonly IAttendanceRepository _attendanceRepository;
+        private readonly ILeaveRepository _leaveRepository;
+        private readonly IUserRepository _userRepository;
+        private readonly IProjectRepository _projectRepository;
+        private readonly IDesignationRepository _designationRepository;
 
-        public static string HashPassword(string password)
+        public AdminController(IAttendanceRepository attendanceRepository,
+            ILeaveRepository leaveRepository,
+            IUserRepository userRepository,
+            IProjectRepository projectRepository,
+            IDesignationRepository designationRepository)
         {
-            using (SHA256 sha256 = SHA256.Create())
-            {
-
-                byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-                StringBuilder builder = new StringBuilder();
-                for (int i = 0; i < bytes.Length; i++)
-                {
-                    builder.Append(bytes[i].ToString("x2"));
-                }
-                return builder.ToString();
-            }
-        }
-
-        private readonly ApplicationDBContext _dbContext;
-
-        public AdminController(ApplicationDBContext dbContext)
-        {
-            _dbContext = dbContext;
+            _attendanceRepository = attendanceRepository;
+            _leaveRepository = leaveRepository;
+            _userRepository = userRepository;
+            _projectRepository = projectRepository;
+            _designationRepository = designationRepository;
         }
 
         public IActionResult Index()
@@ -39,7 +35,7 @@ namespace AttendEasee.Controllers
         }
         public IActionResult ViewEmployee()
         {
-            var list = _dbContext.Users.Where(user => user.IsAdmin != true).ToList();
+            var list = _userRepository.GetNonAdminUsers();
             if (list != null)
             {
                 return View(list);
@@ -50,66 +46,43 @@ namespace AttendEasee.Controllers
         [HttpGet]
         public IActionResult AddEmployee()
         {
-            var designations = _dbContext.Designations
-            .Select(d => d.DesignationId + "-" + d.Roles)
-            .ToList();
+            var designations = _designationRepository.GetDesignationRolesString();
 
-            var projectId = _dbContext.Projects
-            .Select(p => p.ProjectId)
-            .ToList();
-
+            var projectId = _projectRepository.GetProjectsIds();
 
             ViewBag.ProjectIds = projectId;
 
             return View(designations);
-
         }
 
         [HttpPost]
         public IActionResult AddEmployee([FromForm] User user, string ProjectCode)
         {
             string password = "@123";
-            user.Password = AdminController.HashPassword(password);
+            user.Password = _userRepository.HashPassword(password);
 
-            if (!ModelState.IsValid)
-            {
-                // Capture validation errors
-                var validationErrors = ModelState.Values.SelectMany(v => v.Errors)
-                                                        .Select(e => e.ErrorMessage)
-                                                        .ToList();
-
-                // Store validation messages in TempData for use in the View
-                TempData["ValidationErrors"] = validationErrors;
-                return RedirectToAction("Add");
-            }
-
-            user.Password = "@123";
-            if (_dbContext.Users.Any(u => u.Email == user.Email))
+            if (_userRepository.IsUserExists(user.Email))
             {
                 TempData["EmailExistsWarning"] = true;
                 return RedirectToAction("Add");
             }
-            var project = _dbContext.Projects.FirstOrDefault(p => p.ProjectCode == ProjectCode);
-                if (project != null)
-                {
-                    user.ProjectId = project.ProjectId;
-                
+
+            var project = _projectRepository.GetProjectByProjectCode(ProjectCode);
+            if (project != null)
+            {
+                user.ProjectId = project.ProjectId;
             }
 
-            _dbContext.Users.Add(user);
-            _dbContext.SaveChanges();
-            TempData["AddSuccess"] = true;
+            _userRepository.AddUser(user);
+            TempData["AddEmployeeSuccess"] = true;
             return RedirectToAction("ViewEmployee", "Admin");
         }
 
         [HttpGet]
         public IActionResult ModifyEmployee()
         {
-            var designations = _dbContext.Designations
-            .Select(d => d.DesignationId + "-" + d.Roles)
-            .ToList();
-
-            var users = _dbContext.Users.Where(u => u.IsAdmin != true).ToList();
+            var designations = _designationRepository.GetDesignationRolesString();
+            var users = _userRepository.GetNonAdminUsers();
 
             ViewBag.Designations = designations;
             ViewBag.Users = users;
@@ -120,8 +93,8 @@ namespace AttendEasee.Controllers
         [HttpPut]
         public IActionResult UpdateEmployee([FromForm] User updatedUser)
         {
+            var user = _userRepository.GetUserById(updatedUser.UserId);
 
-            var user = _dbContext.Users.SingleOrDefault(u => u.UserId == updatedUser.UserId);
 
             if (user == null)
             {
@@ -134,7 +107,7 @@ namespace AttendEasee.Controllers
             user.DesignationId = updatedUser.DesignationId;
             user.IsManager = updatedUser.IsManager;
 
-            _dbContext.SaveChanges();
+            _userRepository.save();
 
             return Json(new { success = true, message = "User details updated successfully." });
         }
@@ -143,12 +116,14 @@ namespace AttendEasee.Controllers
         [HttpPut]
         public IActionResult DeleteEmployee([FromForm] User user)
         {
-            var fetched = _dbContext.Users.SingleOrDefault(p => p.UserName == user.UserName);
-            if (fetched != null)
+            var fetched = _userRepository.GetUserById(user.UserId);
+            Console.WriteLine("======DANDANDAN1==========");
+
+            if (fetched != null)    
             {
+                Console.WriteLine("======DANDANDAN==========");
                 // User exists
-                _dbContext.Users.Remove(fetched);
-                _dbContext.SaveChanges();
+                _userRepository.RemoveUser(fetched);
                 return Json(new { success = true });
             }
             else
@@ -163,13 +138,10 @@ namespace AttendEasee.Controllers
         [HttpGet]
         public IActionResult AssignProject()
         {
-            var projects = _dbContext.Projects.Select(p => p.ProjectCode).ToList();
-
-            var userId = _dbContext.Users.Where(u => u.IsAdmin != true).ToList();
-
+            var projects = _projectRepository.GetAllByProjectCode();
+            var userId = _userRepository.GetNonAdminUsers();
             ViewBag.Projects = projects;
             ViewBag.UserIds = userId;
-
             return View();
         }
 
@@ -177,7 +149,7 @@ namespace AttendEasee.Controllers
         public IActionResult AssignProject(string UserId, string ProjectCode)
         {
 
-            var user = _dbContext.Users.SingleOrDefault(u => u.UserId.ToString() == UserId);
+            var user = _userRepository.GetUserById(int.Parse(UserId));
 
             if (user == null)
             {
@@ -186,17 +158,17 @@ namespace AttendEasee.Controllers
 
             if (ProjectCode != "N/A")
             {
-                var project = _dbContext.Projects.FirstOrDefault(p => p.ProjectCode == ProjectCode);
+                var project = _projectRepository.GetProjectByProjectCode(ProjectCode);
                 if (project != null)
                 {
                     user.ProjectId = project.ProjectId;
                 }
             }
 
-            _dbContext.SaveChanges();
+            _userRepository.save();
 
             TempData["ProjectAssignSuccess"] = true;
-            return RedirectToAction("Index", "Employee");
+            return RedirectToAction("ViewEmployee", "Admin");
         }
 
        
@@ -210,7 +182,7 @@ namespace AttendEasee.Controllers
         [HttpGet]
         public IActionResult ViewProject()
         {
-            var list = _dbContext.Projects.ToList();
+            var list = _projectRepository.GetAllProjects();
             return View(list);
         }
 
@@ -223,43 +195,27 @@ namespace AttendEasee.Controllers
         public IActionResult AddProject([FromForm] Project project)
         {
             project.ProjectId = Convert.ToInt32(project.ProjectCode);
-            _dbContext.Projects.Add(project);
-            _dbContext.SaveChanges();
-            TempData["AddSuccess"] = true;
-            return RedirectToAction("Index", "Project");
+            _projectRepository.AddProject(project);
+            TempData["AddProjectSuccess"] = true;
+            return RedirectToAction("ViewProject", "Admin");
         }
 
         [HttpGet]
         public IActionResult ModifyProject()
         {
-            var projectIds = _dbContext.Projects
-                            .Select(p => p.ProjectCode)
-                            .ToList();
+            var projectIds = _projectRepository.GetAllByProjectCode();
             return View(projectIds);
         }
 
         [HttpPut]
         public IActionResult UpdateProject([FromForm] Project project)
         {
-            var fetched = _dbContext.Projects.SingleOrDefault(p => p.ProjectCode == project.ProjectCode);
+            var fetched = _projectRepository.GetProjectByProjectCode(project.ProjectCode);
+
             if (fetched != null)
             {
-                bool isUpdated = false;
-                if (project.Name != null)
+                if (_projectRepository.UpdateProject(fetched, project.Name, project.Location))
                 {
-                    fetched.Name = project.Name;
-                    isUpdated = true;
-                }
-
-                if (project.Location != null)
-                {
-                    fetched.Location = project.Location;
-                    isUpdated = true;
-                }
-
-                if (isUpdated)
-                {
-                    _dbContext.SaveChanges();
                     return Json(new { success = true });
                 }
                 else
@@ -277,25 +233,9 @@ namespace AttendEasee.Controllers
         [HttpPut]
         public IActionResult DeleteProject([FromForm] Project project)
         {
-            var fetched = _dbContext.Projects.SingleOrDefault(p => p.ProjectCode == project.ProjectCode);
-            if (fetched != null)
+            if (_projectRepository.RemoveProjectByProjectCode(project.ProjectCode))
             {
-                bool isUpdated = false;
-                if (project.ProjectCode != null)
-                {
-                    _dbContext.Remove(fetched);
-                    isUpdated = true;
-                }
-
-                if (isUpdated)
-                {
-                    _dbContext.SaveChanges();
-                    return Json(new { success = true });
-                }
-                else
-                {
-                    return View("Modify");
-                }
+                return Json(new { success = true });
             }
             else
             {
@@ -308,7 +248,7 @@ namespace AttendEasee.Controllers
 
         public IActionResult ManageLeave()
         {
-            var leaves = _dbContext.Leaves.Include(l => l.User).Where(x=>x.LeaveStatus=="Pending").ToList();
+            var leaves = _leaveRepository.GetPendingLeaves();
             return View(leaves);
         }
 
@@ -320,7 +260,7 @@ namespace AttendEasee.Controllers
                 return BadRequest("ID mismatch.");
             }
 
-            var leave = _dbContext.Leaves.Find(id);
+            var leave = _leaveRepository.GetLeaveById(id);
             if (leave == null)
             {
                 return NotFound("Leave request not found.");
@@ -331,11 +271,11 @@ namespace AttendEasee.Controllers
 
             try
             {
-                _dbContext.SaveChanges();
+                _leaveRepository.Save();
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!LeaveExists(id))
+                if (!_leaveRepository.LeaveExists(id))
                 {
                     return NotFound("Leave request not found.");
                 }
@@ -345,10 +285,7 @@ namespace AttendEasee.Controllers
             return Ok("Leave status updated.");
         }
 
-        private bool LeaveExists(int id)
-        {
-            return _dbContext.Leaves.Any(e => e.LeaveId == id);
-        }
+        
 
 
         [HttpPost]
@@ -361,30 +298,30 @@ namespace AttendEasee.Controllers
                 return BadRequest("Status is required.");
             }
 
-            var leaves = _dbContext.Leaves.ToList();
+            var leaves = _leaveRepository.GetAllLeaves();
             foreach (var leave in leaves)
             {
                 leave.LeaveStatus = data.LeaveStatus;
                 leave.AccRejDate = DateTime.Now;
             }
-            _dbContext.SaveChanges();
+            _leaveRepository.Save();
 
             return Ok("Leaves Updated");
         }
 
+        //--------------------------------------LeaveController Done--------------------------------------
+
         public IActionResult ManageAttendance()
         {
-            var attendanceRecords = _dbContext.Attendances.Include(x => x.User).Where(x => x.AttendanceStatus == "Pending").ToList();
+            var attendanceRecords = _attendanceRepository.GetAllPendingAttendances();
             return View(attendanceRecords);
         }
 
 
         [HttpPost]
-        public IActionResult ApproveRejectAttendance(int userId, bool isApproved, [FromBody] Attendance att)
+        public IActionResult ApproveRejectAttendance([FromBody] Attendance att)
         {
-            var check = _dbContext.Attendances
-            .Include(x => x.User)
-            .FirstOrDefault(x => x.UserId == att.UserId && x.AttendanceStatus == "Pending");
+            var check = _attendanceRepository.GetPendingAttendance(att.UserId);
 
             if (check == null)
             {
@@ -393,18 +330,14 @@ namespace AttendEasee.Controllers
             check.AttendanceStatus = att.AttendanceStatus;
             check.AccRejDate = DateTime.Now;
 
-            _dbContext.Attendances.Update(check);
-            _dbContext.SaveChanges();
+            _attendanceRepository.UpdateAttendance(check);
             return Ok("done");
         }
 
         [HttpGet]
         public IActionResult AttendanceStatus(int userId)
         {
-            var attendanceRecords = _dbContext.Attendances
-                .Where(x => x.UserId == userId)
-                .Include(x => x.User)
-                .ToList();
+            var attendanceRecords = _attendanceRepository.GetAttendanceByUserId(userId);
 
             if (attendanceRecords == null || !attendanceRecords.Any())
             {
@@ -416,7 +349,7 @@ namespace AttendEasee.Controllers
 
     }
 
-    //--------------------------------------LeaveController Done--------------------------------------
+    
 
     
 }

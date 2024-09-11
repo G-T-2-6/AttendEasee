@@ -7,16 +7,25 @@ namespace AttendEasee.Controllers
 {
     public class DeveloperController : Controller
     {
-        private readonly ApplicationDBContext _db;
-        public DeveloperController(ApplicationDBContext db) {
-            _db = db;
-        }
-        public IActionResult Index()
+        private readonly IUserRepository _userRepository;
+        private readonly ILeaveRepository _leaveRepository;
+        private readonly IAttendanceRepository _attendanceRepository;
+
+        public DeveloperController(IUserRepository userRepository, 
+            ILeaveRepository leaveRepository, 
+            IAttendanceRepository attendanceRepository)
         {
-            return View();
+            _userRepository = userRepository;
+            _leaveRepository = leaveRepository;
+            _attendanceRepository = attendanceRepository;
         }
 
-        public User developer { get; set; }
+        public IActionResult Index()
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            var logged = _userRepository.GetUserById(userId ?? 0);
+            return View(logged);
+        }
 
         public IActionResult ApplyLeaveDeveloper()
         {
@@ -26,9 +35,11 @@ namespace AttendEasee.Controllers
         [HttpPost]
         public IActionResult ApplyLeaveDeveloper(Leave obj)
         {
-            var userid = HttpContext.Session.GetInt32("UserId");
-            int id = (int)userid;
-            developer = (User)_db.Users.FirstOrDefault(u => u.UserId == id);
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+                return NotFound();
+
+            var developer = _userRepository.GetUserById((int)userId);
 
             if (string.IsNullOrWhiteSpace(Request.Form["StartDate"]) || string.IsNullOrWhiteSpace(Request.Form["EndDate"]))
             {
@@ -55,13 +66,16 @@ namespace AttendEasee.Controllers
 
             for (DateTime date = startDate; date <= endDate; date = date.AddDays(1))
             {
-                Leave leave = new Leave();
-                leave.LeaveStatus = "Pending";
-                leave.UserId = developer.UserId;
-                leave.RequestDate = date;
-                _db.Leaves.Add(leave);
+                Leave leave = new Leave
+                {
+                    LeaveStatus = "Pending",
+                    UserId = developer.UserId,
+                    RequestDate = date
+                };
+                _leaveRepository.AddLeave(leave);
             }
-            _db.SaveChanges();
+
+            _leaveRepository.Save();
             TempData["SuccessMessage"] = "Leave Added Successfully";
             return RedirectToAction("ViewLeaveDeveloper");
         }
@@ -88,8 +102,8 @@ namespace AttendEasee.Controllers
             }
 
             string oldPassword = Request.Form["OldPassword"].ToString();
-            string oldPasswordHash = AdminController.HashPassword(oldPassword);
-            var userObj = (User)_db.Users.FirstOrDefault(u => u.UserId == userId);
+            string oldPasswordHash = _userRepository.HashPassword(oldPassword);
+            var userObj = _userRepository.GetUserById(userId ?? 0);
 
             if (userObj == null)
 
@@ -108,7 +122,7 @@ namespace AttendEasee.Controllers
             }
 
             string newPassword = Request.Form["NewPassword"].ToString();
-            string newPasswordHash = AdminController.HashPassword(newPassword);
+            string newPasswordHash = _userRepository.HashPassword(newPassword);
             if (userObj.Password == newPasswordHash)
 
             {
@@ -116,8 +130,7 @@ namespace AttendEasee.Controllers
                 return RedirectToAction("ChangePassword", "Developer");
             }
             userObj.Password = newPasswordHash;
-            _db.Users.Update(userObj);
-            _db.SaveChanges();
+            _userRepository.UpdateUser(userObj);
             TempData["SuccessMessage"] = "Password changed successfully!";
             return RedirectToAction("Index", "Developer");
 
@@ -125,58 +138,41 @@ namespace AttendEasee.Controllers
 
 
 
+
         public IActionResult ViewLeaveDeveloper()
         {
-            var userid = HttpContext.Session.GetInt32("UserId");
-            int id = (int)userid;
-            developer = (User)_db.Users.FirstOrDefault(u => u.UserId == id);
-            List<Leave> leaves = _db.Leaves.Where(l => l.UserId == developer.UserId).ToList();
+            var userId = HttpContext.Session.GetInt32("UserId");
+            var leaves = _leaveRepository.GetLeavesByUserId(userId ?? 0);
             return View(leaves);
         }
 
         public IActionResult ApplyAttendance()
         {
-            
             return View();
         }
 
         [HttpPost]
         public IActionResult ApplyAttendance([FromBody] Attendance att)
         {
-            var existingAttendance = _db.Attendances
-                .FirstOrDefault(x => x.UserId == att.UserId && x.Date == att.Date);
+            var existingAttendance = _attendanceRepository.GetAttendanceByDate(att.UserId, att.Date);
 
             if (existingAttendance != null)
             {
                 return Conflict("Attendance for this date has already been applied.");
             }
 
-
             att.AttendanceStatus = "Pending";
             att.AccRejDate = null;
-            att.AttendanceId = 0;
+            _attendanceRepository.AddAttendance(att);
+            _attendanceRepository.Save();
 
-
-            _db.Attendances.Add(att);
-            _db.SaveChanges();
-
-            return RedirectToAction("ViewAttendanceDeveloper","Developer");
+            return RedirectToAction("ViewAttendanceDeveloper");
         }
 
         public IActionResult ViewAttendanceDeveloper()
         {
             var userId = HttpContext.Session.GetInt32("UserId");
-            var attendanceRecords = _db.Attendances
-                .Where(x => x.UserId == userId)
-                .Include(x => x.User)
-                .OrderByDescending(x => x.Date)
-                .ToList();
-
-            if (attendanceRecords == null || !attendanceRecords.Any())
-            {
-                return View(new List<Attendance>());
-            }
-
+            var attendanceRecords = _attendanceRepository.GetAttendanceByUserId(userId ?? 0);
             return View(attendanceRecords);
         }
     }

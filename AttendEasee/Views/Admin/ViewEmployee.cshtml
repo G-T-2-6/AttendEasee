@@ -6,12 +6,12 @@
 @model List<User>
 
 @{
-    bool addSuccess = TempData["AddSuccess"] != null && (bool)TempData["AddSuccess"];
+    bool AddEmployeeSuccess = TempData["AddEmployeeSuccess"] != null && (bool)TempData["AddEmployeeSuccess"];
 }
 
 <div class="container">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    @if (addSuccess)
+    @if (AddEmployeeSuccess)
     {
 
         <script type="text/javascript">
