@@ -18,6 +18,7 @@
 
     <!-- Toastr JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <script>
         toastr.options = {
@@ -72,6 +73,9 @@
                         <li class="ms-auto">
                             <a asp-controller="Home" asp-action="Logout" style="background-color: rgba(17,171,221,1);border:1px solid black;" class="btn btn-primary text-dark my-2 my-sm-0">
                                 Logout
+                            </a>
+                            <a asp-controller="Manager" asp-action="ChangePassword" style="background-color: rgba(17,171,221,1);border:1px solid black;" class="btn btn-primary text-dark my-2 my-sm-0">
+                                Change Password
                             </a>
                         </li>
 

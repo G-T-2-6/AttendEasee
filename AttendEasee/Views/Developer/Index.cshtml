@@ -8,7 +8,7 @@
 @{
     bool success = TempData["SuccessMessage"] != null;
     string successMessage = "Success";
-    if (success)
+    if(success)
     {
         successMessage = TempData["SuccessMessage"].ToString();
     }
@@ -21,48 +21,30 @@
     }
 }
 
-@if (success)
-
-{
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script type="text/javascript">
-
-        Swal.fire({
-
-            title: 'Success!',
-
-            text: '@successMessage',
-
-            icon: 'success',
-
-            confirmButtonText: 'OK'
-
-        });
-    </script>
-
-}
-
-@if (failure)
-
-{
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script type="text/javascript">
-
-        Swal.fire({
-
-            title: 'Failed!',
-
-            text: '@failureMessage',
-
-            icon: 'error',
-
-            confirmButtonText: 'Close'
-
-        });
-    </script>
-
-}
-
-
 <h1>Developer Index View</h1>
+
+@if (success)
+{
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="text/javascript">
+        Swal.fire({
+            title: 'Success!',
+            text: '@successMessage',
+            icon: 'success',
+            confirmButtonText: 'OK'
+        });
+    </script>
+}
+@if (failure)
+{
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="text/javascript">
+        Swal.fire({
+            title: 'Failed!',
+            text: '@failureMessage',
+            icon: 'error',
+            confirmButtonText: 'Close'
+        });
+    </script>
+}
 

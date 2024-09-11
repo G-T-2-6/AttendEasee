@@ -1,5 +1,6 @@
 ﻿using AttendEase.Data;
 using AttendEase.Filters;
+using AttendEasee.Migrations;
 using AttendEase.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -32,7 +33,10 @@ namespace AttendEasee.Controllers
 
         public IActionResult ApplyLeaveDeveloper()
         {
-            return View();
+            var userid = HttpContext.Session.GetInt32("UserId");
+            int id = (int)userid;
+            var developer = _userRepository.GetUserById(id);
+            return View(developer);
         }
 
         [HttpPost]
@@ -60,24 +64,34 @@ namespace AttendEasee.Controllers
             }
 
             int totalDays = (endDate - startDate).Days + 1;
+            int appliedLeaves = _leaveRepository.GetEmployeeLeaves(userId ?? 0).Count();
 
-            if (totalDays > developer.AvailableLeavesCount)
+            if (totalDays + appliedLeaves > developer.AvailableLeavesCount)
             {
                 TempData["FailureMessage"] = "Requested Days cannot be more than your leave credit";
                 return RedirectToAction("ViewLeaveDeveloper");
             }
 
+            bool added = false;
+
             for (DateTime date = startDate; date <= endDate; date = date.AddDays(1))
             {
-                Leave leave = new Leave
+                var find = _leaveRepository.GetLeaveByDateAndUserId(date, developer.UserId);
+                if(find.Count>0)
                 {
-                    LeaveStatus = "Pending",
-                    UserId = developer.UserId,
-                    RequestDate = date
-                };
+                    continue;
+                }
+                Leave leave = new Leave();
+                leave.LeaveStatus = "Pending";
+                leave.UserId = developer.UserId;
+                leave.RequestDate = date;
                 _leaveRepository.AddLeave(leave);
+                added = true;
             }
-
+            if (added == false)
+            {
+                TempData["FailureMessage"] = "Leave Requests already exist for all the entered dates";
+            }
             _leaveRepository.Save();
             TempData["SuccessMessage"] = "Leave Added Successfully";
             return RedirectToAction("ViewLeaveDeveloper");

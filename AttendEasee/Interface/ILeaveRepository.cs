@@ -10,6 +10,7 @@ public interface ILeaveRepository
     void UpdateLeave(Leave leave);
     List<Leave> GetPendingLeavesByManagerId(int managerId);
     List<Leave> GetPendingLeaves();
+    List<Leave> GetLeaveByDateAndUserId(DateTime date, int userId);
     IEnumerable<Leave> GetAllLeaves();
     bool LeaveExists(int id);
     void Save();

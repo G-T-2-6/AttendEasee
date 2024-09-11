@@ -1,4 +1,4 @@
-﻿@model Leave
+﻿@model User
 @{
     ViewData["Title"] = "ApplyLeaveManager";
     Layout = "~/Views/Shared/_ManagerLayout.cshtml";
@@ -8,6 +8,7 @@
 
 <form method="post" enctype="multipart/form-data">
     <h1>Your Leave Application</h1>
+    <p>Your leave credit: @Model.AvailableLeavesCount</p>
     <div class="border p-3 m-4">
         <div class="row pb-2">
             <div class="mb-3">

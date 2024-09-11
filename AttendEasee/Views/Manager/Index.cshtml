@@ -2,11 +2,63 @@
     Layout = "~/Views/Shared/_ManagerLayout.cshtml";
 }
 
-<h1>Manager Index Page</h1>
 @{
     bool loginSuccess = TempData["ismanager"] != null && (bool)TempData["ismanager"];
+
+    bool success = TempData["SuccessMessage"] != null;
+    string successMessage = "Success";
+    if (success)
+    {
+        successMessage = TempData["SuccessMessage"].ToString();
+    }
+
+    bool failure = TempData["FailureMessage"] != null;
+    string failureMessage = "Success";
+    if (failure)
+    {
+        failureMessage = TempData["FailureMessage"].ToString();
+    }
 }
 
+@{
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Flexbox container for cards */
+        .chart-container {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+        }
+
+        /* Styling for each card */
+        .chart-card {
+            width: 48%; /* 48% to allow space between cards */
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin: 10px;
+        }
+
+        /* Adjust canvas size inside each card */
+        canvas {
+            width: 100% !important;
+            height: auto !important;
+        }
+    </style>
+    int approved = ViewBag.Approved;
+    int rejected = ViewBag.Rejected;
+    int pending = ViewBag.Pending;
+
+    // Calculate the total requests and pending percentage
+    int totalRequests = approved + rejected + pending;
+    double pendingPercentage = totalRequests > 0 ? (double)pending / totalRequests * 100 : 0;
+
+    int approvedAttendance = ViewBag.ApprovedAttendance;
+    int rejectedAttendance = ViewBag.RejectedAttendance;
+    int pendingAttendance = ViewBag.PendingAttendance;
+}
 
 
 <div>
@@ -22,5 +74,117 @@
             });
         </script>
     }
-    <h1>User</h1>
+
+    <div class="chart-container">
+        <!-- Card for Leave Requests Chart -->
+        <div class="chart-card">
+            <h3>Leave Requests</h3>
+            <canvas id="leaveRequestsChart"></canvas>
+        </div>
+
+        <!-- Card for Attendance Requests Chart -->
+        <div class="chart-card">
+            <h3>Attendance Requests</h3>
+            <canvas id="attendanceRequestsChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        var ctx = document.getElementById('leaveRequestsChart').getContext('2d');
+        var leaveRequestsChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Approved', 'Rejected', 'Pending'],
+                datasets: [{
+                    label: 'Leave Requests',
+                    data: [@approved, @rejected, @pending],
+                    backgroundColor: [
+                        'rgba(75, 192, 192, 0.2)', // Green - Approved
+                        'rgba(255, 99, 132, 0.2)',  // Red - Rejected
+                        'rgba(255, 206, 86, 0.2)'   // Yellow - Pending
+                    ],
+                    borderColor: [
+                        'rgba(75, 192, 192, 1)',  // Green - Approved
+                        'rgba(255, 99, 132, 1)',  // Red - Rejected
+                        'rgba(255, 206, 86, 1)'   // Yellow - Pending
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        enabled: true
+                    }
+                },
+                cutout: '70%' // Hollow in the middle
+            }
+        });
+    </script>
+
+    <script>
+        var ctx = document.getElementById('attendanceRequestsChart').getContext('2d');
+        var leaveRequestsChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Approved', 'Rejected', 'Pending'],
+                datasets: [{
+                    label: 'Attendance Requests',
+                    data: [@approvedAttendance, @rejectedAttendance, @pendingAttendance],
+                    backgroundColor: [
+                        'rgba(75, 192, 192, 0.2)', // Green - Approved
+                        'rgba(255, 99, 132, 0.2)',  // Red - Rejected
+                        'rgba(255, 206, 86, 0.2)'   // Yellow - Pending
+                    ],
+                    borderColor: [
+                        'rgba(75, 192, 192, 1)',  // Green - Approved
+                        'rgba(255, 99, 132, 1)',  // Red - Rejected
+                        'rgba(255, 206, 86, 1)'   // Yellow - Pending
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        enabled: true
+                    }
+                },
+                cutout: '70%' // Hollow in the middle
+            }
+        });
+    </script>
 </div>
+
+@if (success)
+{
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="text/javascript">
+        Swal.fire({
+            title: 'Success!',
+            text: '@successMessage',
+            icon: 'success',
+            confirmButtonText: 'OK'
+        });
+    </script>
+}
+@if (failure)
+{
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="text/javascript">
+        Swal.fire({
+            title: 'Failed!',
+            text: '@failureMessage',
+            icon: 'error',
+            confirmButtonText: 'Close'
+        });
+    </script>
+}

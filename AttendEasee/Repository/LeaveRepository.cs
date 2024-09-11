@@ -3,6 +3,7 @@ using AttendEase.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 public class LeaveRepository : ILeaveRepository
 {
@@ -50,6 +51,11 @@ public class LeaveRepository : ILeaveRepository
     public List<Leave> GetPendingLeaves()
     {
         return _context.Leaves.Include(l => l.User).Where(x => x.LeaveStatus == "Pending").OrderByDescending(d => d.RequestDate).ToList();
+    }
+
+    public List<Leave> GetLeaveByDateAndUserId(DateTime date, int userId)
+    {
+        return _context.Leaves.Where(l => l.RequestDate == date && l.UserId == userId).ToList();
     }
 
     public bool LeaveExists(int id)
