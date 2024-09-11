@@ -47,17 +47,17 @@
             height: auto !important;
         }
     </style>
-    int approved = ViewBag.Approved;
-    int rejected = ViewBag.Rejected;
-    int pending = ViewBag.Pending;
+    // int approved = ViewBag.Approved;
+    // int rejected = ViewBag.Rejected;
+    // int pending = ViewBag.Pending;
 
-    // Calculate the total requests and pending percentage
-    int totalRequests = approved + rejected + pending;
-    double pendingPercentage = totalRequests > 0 ? (double)pending / totalRequests * 100 : 0;
+    // // Calculate the total requests and pending percentage
+    // int totalRequests = approved + rejected + pending;
+    // double pendingPercentage = totalRequests > 0 ? (double)pending / totalRequests * 100 : 0;
 
-    int approvedAttendance = ViewBag.ApprovedAttendance;
-    int rejectedAttendance = ViewBag.RejectedAttendance;
-    int pendingAttendance = ViewBag.PendingAttendance;
+    // int approvedAttendance = ViewBag.ApprovedAttendance;
+    // int rejectedAttendance = ViewBag.RejectedAttendance;
+    // int pendingAttendance = ViewBag.PendingAttendance;
 }
 
 
@@ -88,83 +88,83 @@
             <canvas id="attendanceRequestsChart"></canvas>
         </div>
     </div>
+@* 
+     <script>
+         var ctx = document.getElementById('leaveRequestsChart').getContext('2d');
+         var leaveRequestsChart = new Chart(ctx, {
+             type: 'doughnut',
+             data: {
+                 labels: ['Approved', 'Rejected', 'Pending'],
+                 datasets: [{
+                     label: 'Leave Requests',
+                     data: [@approved, @rejected, @pending],
+                     backgroundColor: [
+                         'rgba(75, 192, 192, 0.2)', // Green - Approved
+                         'rgba(255, 99, 132, 0.2)',  // Red - Rejected
+                         'rgba(255, 206, 86, 0.2)'   // Yellow - Pending
+                     ],
+                     borderColor: [
+                         'rgba(75, 192, 192, 1)',  // Green - Approved
+                         'rgba(255, 99, 132, 1)',  // Red - Rejected
+                         'rgba(255, 206, 86, 1)'   // Yellow - Pending
+                     ],
+                     borderWidth: 2
+                 }]
+             },
+             options: {
+                 responsive: true,
+                 plugins: {
+                     legend: {
+                         position: 'top',
+                     },
+                     tooltip: {
+                         enabled: true
+                     }
+                 },
+                 cutout: '70%' // Hollow in the middle
+             }
+         });
+     </script>
 
-    <script>
-        var ctx = document.getElementById('leaveRequestsChart').getContext('2d');
-        var leaveRequestsChart = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Approved', 'Rejected', 'Pending'],
-                datasets: [{
-                    label: 'Leave Requests',
-                    data: [@approved, @rejected, @pending],
-                    backgroundColor: [
-                        'rgba(75, 192, 192, 0.2)', // Green - Approved
-                        'rgba(255, 99, 132, 0.2)',  // Red - Rejected
-                        'rgba(255, 206, 86, 0.2)'   // Yellow - Pending
-                    ],
-                    borderColor: [
-                        'rgba(75, 192, 192, 1)',  // Green - Approved
-                        'rgba(255, 99, 132, 1)',  // Red - Rejected
-                        'rgba(255, 206, 86, 1)'   // Yellow - Pending
-                    ],
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                    tooltip: {
-                        enabled: true
-                    }
-                },
-                cutout: '70%' // Hollow in the middle
-            }
-        });
-    </script>
-
-    <script>
-        var ctx = document.getElementById('attendanceRequestsChart').getContext('2d');
-        var leaveRequestsChart = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Approved', 'Rejected', 'Pending'],
-                datasets: [{
-                    label: 'Attendance Requests',
-                    data: [@approvedAttendance, @rejectedAttendance, @pendingAttendance],
-                    backgroundColor: [
-                        'rgba(75, 192, 192, 0.2)', // Green - Approved
-                        'rgba(255, 99, 132, 0.2)',  // Red - Rejected
-                        'rgba(255, 206, 86, 0.2)'   // Yellow - Pending
-                    ],
-                    borderColor: [
-                        'rgba(75, 192, 192, 1)',  // Green - Approved
-                        'rgba(255, 99, 132, 1)',  // Red - Rejected
-                        'rgba(255, 206, 86, 1)'   // Yellow - Pending
-                    ],
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                    tooltip: {
-                        enabled: true
-                    }
-                },
-                cutout: '70%' // Hollow in the middle
-            }
-        });
-    </script>
+     <script>
+         var ctx = document.getElementById('attendanceRequestsChart').getContext('2d');
+         var leaveRequestsChart = new Chart(ctx, {
+             type: 'doughnut',
+             data: {
+                 labels: ['Approved', 'Rejected', 'Pending'],
+                 datasets: [{
+                     label: 'Attendance Requests',
+                     data: [@approvedAttendance, @rejectedAttendance, @pendingAttendance],
+                     backgroundColor: [
+                         'rgba(75, 192, 192, 0.2)', // Green - Approved
+                         'rgba(255, 99, 132, 0.2)',  // Red - Rejected
+                         'rgba(255, 206, 86, 0.2)'   // Yellow - Pending
+                     ],
+                     borderColor: [
+                         'rgba(75, 192, 192, 1)',  // Green - Approved
+                         'rgba(255, 99, 132, 1)',  // Red - Rejected
+                         'rgba(255, 206, 86, 1)'   // Yellow - Pending
+                     ],
+                     borderWidth: 2
+                 }]
+             },
+             options: {
+                 responsive: true,
+                 plugins: {
+                     legend: {
+                         position: 'top',
+                     },
+                     tooltip: {
+                         enabled: true
+                     }
+                 },
+                 cutout: '70%' // Hollow in the middle
+             }
+         });
+     </script> *@
 </div>
 
-@if (success)
+@* @if (success)
 {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script type="text/javascript">
@@ -188,3 +188,4 @@
         });
     </script>
 }
+ *@
