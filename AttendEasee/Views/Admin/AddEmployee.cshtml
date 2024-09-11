@@ -17,16 +17,27 @@
                 </div>
             }
 
+            @if (TempData["ValidationErrors"] != null)
+            {
+                var errors = (List<string>)TempData["ValidationErrors"];
+                foreach (var error in errors)
+                {
+                    <div class="alert alert-danger" role="alert">
+                        @error
+                    </div>
+                }
+            }
+
         <div class="form-floating mb-1 mt-1">
-            <input type="text" name="Name" class="form-control" id="code" placeholder="Enter Name">
+            <input type="text" name="Name" class="form-control" id="code" placeholder="Enter Name" required>
             <label for="name">Name</label>
         </div>
         <div class="form-floating mb-1">
-            <input type="text" name="UserName" class="form-control" id="name" placeholder="Enter Username">
+                <input type="text" name="UserName" class="form-control" id="name" placeholder="Enter Username" required>
             <label for="username">Username</label>
         </div>
             <div class="form-floating mb-1">
-                <input type="email" name="Email" class="form-control" id="name" placeholder="Enter Email">
+                <input type="email" name="Email" class="form-control" id="name" placeholder="Enter Email" required>
                 <label for="name">Email</label>
             </div>
             <div class="form-floating mb-1">

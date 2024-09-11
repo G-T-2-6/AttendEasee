@@ -51,6 +51,18 @@ namespace AttendEasee.Controllers
         [HttpPost]
         public IActionResult AddEmployee([FromForm] User user, string ProjectCode)
         {
+            if (!ModelState.IsValid)
+            {
+                // Capture validation errors
+                var validationErrors = ModelState.Values.SelectMany(v => v.Errors)
+                                                        .Select(e => e.ErrorMessage)
+                                                        .ToList();
+
+                // Store validation messages in TempData for use in the View
+                TempData["ValidationErrors"] = validationErrors;
+                return RedirectToAction("Add");
+            }
+
             user.Password = "@123";
             if (_dbContext.Users.Any(u => u.Email == user.Email))
             {
