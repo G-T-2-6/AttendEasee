@@ -4,5 +4,64 @@
     Layout = "~/Views/Shared/_DeveloperLayout.cshtml";
 }
 
+@{
+    bool success = TempData["SuccessMessage"] != null;
+    string successMessage = "Success";
+    if (success)
+    {
+        successMessage = TempData["SuccessMessage"].ToString();
+    }
+
+    bool failure = TempData["FailureMessage"] != null;
+    string failureMessage = "Success";
+    if (failure)
+    {
+        failureMessage = TempData["FailureMessage"].ToString();
+    }
+}
+
+@if (success)
+
+{
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="text/javascript">
+
+        Swal.fire({
+
+            title: 'Success!',
+
+            text: '@successMessage',
+
+            icon: 'success',
+
+            confirmButtonText: 'OK'
+
+        });
+    </script>
+
+}
+
+@if (failure)
+
+{
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="text/javascript">
+
+        Swal.fire({
+
+            title: 'Failed!',
+
+            text: '@failureMessage',
+
+            icon: 'error',
+
+            confirmButtonText: 'Close'
+
+        });
+    </script>
+
+}
+
+
 <h1>Developer Index View</h1>
 

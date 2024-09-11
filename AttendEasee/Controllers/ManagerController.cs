@@ -1,5 +1,6 @@
 ﻿using AttendEase.Data;
 using AttendEase.Models;
+using AttendEasee.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -95,6 +96,65 @@ namespace AttendEase.Controllers
 
             return View(managerWithSubordinates); 
         }
+
+
+
+        public IActionResult ChangePassword()
+
+        {
+            return View();
+        }
+
+        [HttpPost]
+
+        public IActionResult ChangePassword(int? id)
+
+        {
+
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (string.IsNullOrWhiteSpace(Request.Form["OldPassword"]) || string.IsNullOrWhiteSpace(Request.Form["NewPassword"]))
+            {
+                TempData["FailureMessage"] = "You need to enter both old and new passwords";
+                return RedirectToAction("ChangePassword", "Manager");
+            }
+
+            string oldPassword = Request.Form["OldPassword"].ToString();
+            string oldPasswordHash = AdminController.HashPassword(oldPassword);
+            var userObj = (User)_db.Users.FirstOrDefault(u => u.UserId == userId);
+
+            if (userObj == null)
+
+            {
+                return NotFound();
+            }
+
+            if (userObj.Password != oldPasswordHash)
+
+            {
+
+                TempData["FailureMessage"] = "Old passwords do not match";
+
+                return RedirectToAction("ChangePassword", "Manager");
+
+            }
+
+            string newPassword = Request.Form["NewPassword"].ToString();
+            string newPasswordHash = AdminController.HashPassword(newPassword);
+            if (userObj.Password == newPasswordHash)
+
+            {
+                TempData["FailureMessage"] = "Old and new passwords cannot be same";
+                return RedirectToAction("ChangePassword", "Manager");
+            }
+            userObj.Password = newPasswordHash;
+            _db.Users.Update(userObj);
+            _db.SaveChanges();
+            TempData["SuccessMessage"] = "Password changed successfully!";
+            return RedirectToAction("Index", "Manager");
+
+        }
+
+
 
         public IActionResult ApplyLeaveManager()
         {

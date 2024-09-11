@@ -65,6 +65,66 @@ namespace AttendEasee.Controllers
             TempData["SuccessMessage"] = "Leave Added Successfully";
             return RedirectToAction("ViewLeaveDeveloper");
         }
+
+
+        [HttpGet]
+        public IActionResult ChangePassword()
+
+        { 
+            return View();
+        }
+
+        [HttpPost]
+
+        public IActionResult ChangePassword(int? id)
+
+        {
+
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (string.IsNullOrWhiteSpace(Request.Form["OldPassword"]) || string.IsNullOrWhiteSpace(Request.Form["NewPassword"]))
+            {
+                TempData["FailureMessage"] = "You need to enter both old and new passwords";
+                return RedirectToAction("ChangePassword", "Developer");
+            }
+
+            string oldPassword = Request.Form["OldPassword"].ToString();
+            string oldPasswordHash = AdminController.HashPassword(oldPassword);
+            var userObj = (User)_db.Users.FirstOrDefault(u => u.UserId == userId);
+
+            if (userObj == null)
+
+            { 
+                return NotFound();
+            }
+
+            if (userObj.Password != oldPasswordHash)
+
+            {
+
+                TempData["FailureMessage"] = "Old passwords do not match";
+
+                return RedirectToAction("ChangePassword", "Developer");
+
+            }
+
+            string newPassword = Request.Form["NewPassword"].ToString();
+            string newPasswordHash = AdminController.HashPassword(newPassword);
+            if (userObj.Password == newPasswordHash)
+
+            {
+                TempData["FailureMessage"] = "Old and new passwords cannot be same";
+                return RedirectToAction("ChangePassword", "Developer");
+            }
+            userObj.Password = newPasswordHash;
+            _db.Users.Update(userObj);
+            _db.SaveChanges();
+            TempData["SuccessMessage"] = "Password changed successfully!";
+            return RedirectToAction("Index", "Developer");
+
+        }
+
+
+
         public IActionResult ViewLeaveDeveloper()
         {
             var userid = HttpContext.Session.GetInt32("UserId");

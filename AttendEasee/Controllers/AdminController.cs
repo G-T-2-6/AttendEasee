@@ -3,11 +3,28 @@ using AttendEase.Data;
 using AttendEase.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text;
+using System.Security.Cryptography;
 
 namespace AttendEasee.Controllers
 {
     public class AdminController : Controller
     {
+
+        public static string HashPassword(string password)
+        {
+            using (SHA256 sha256 = SHA256.Create())
+            {
+
+                byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+                StringBuilder builder = new StringBuilder();
+                for (int i = 0; i < bytes.Length; i++)
+                {
+                    builder.Append(bytes[i].ToString("x2"));
+                }
+                return builder.ToString();
+            }
+        }
 
         private readonly ApplicationDBContext _dbContext;
 
@@ -51,6 +68,9 @@ namespace AttendEasee.Controllers
         [HttpPost]
         public IActionResult AddEmployee([FromForm] User user, string ProjectCode)
         {
+            string password = "@123";
+            user.Password = AdminController.HashPassword(password);
+
             if (!ModelState.IsValid)
             {
                 // Capture validation errors
@@ -69,20 +89,17 @@ namespace AttendEasee.Controllers
                 TempData["EmailExistsWarning"] = true;
                 return RedirectToAction("Add");
             }
-
-            if (ProjectCode != "N/A")
-            {
-                var project = _dbContext.Projects.FirstOrDefault(p => p.ProjectCode == ProjectCode);
+            var project = _dbContext.Projects.FirstOrDefault(p => p.ProjectCode == ProjectCode);
                 if (project != null)
                 {
                     user.ProjectId = project.ProjectId;
-                }
+                
             }
 
             _dbContext.Users.Add(user);
             _dbContext.SaveChanges();
             TempData["AddSuccess"] = true;
-            return RedirectToAction("Index", "Employee");
+            return RedirectToAction("ViewEmployee", "Admin");
         }
 
         [HttpGet]
